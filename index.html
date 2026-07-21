@@ -24,6 +24,7 @@
 
       <ul class="nav-links" id="navLinks">
         <li><a href="#lancamentos">Lançamentos</a></li>
+        <li><a href="#mais-vendidos">Mais Vendidos</a></li>
         <li><a href="#cardapio">Cardápio</a></li>
         <li><a href="#combos">Combos</a></li>
         <li><a href="#promocoes">Promoções</a></li>
@@ -42,6 +43,68 @@
       </button>
     </nav>
   </header>
+
+  <section class="hero" id="hero">
+    <div class="hero-decor" aria-hidden="true">
+      <span class="hero-float hero-float-gold"></span>
+      <span class="hero-float hero-float-lavender"></span>
+    </div>
+
+    <div class="hero-grid">
+      <div class="hero-left">
+        <span class="hero-eyebrow">Açaí premium em Perus</span>
+
+        <h1 class="hero-title">
+          Açaí premium, do jeito que <span class="hero-title-accent">Perus aprova</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Cremoso, com ingredientes selecionados e aquele sabor que todo mundo indica. Peça direto com a gente, sem pagar comissão de app.
+        </p>
+
+        <div class="hero-actions">
+          <a href="https://wa.me/5511993996423" target="_blank" rel="noopener" class="btn-cta btn-cta-large">
+            Pedir Agora
+          </a>
+          <a href="#cardapio" class="btn-ghost">Ver Cardápio</a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value">—</span>
+            <span class="hero-stat-label">Avaliação real em breve</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">—</span>
+            <span class="hero-stat-label">Pedidos entregues</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">🍇</span>
+            <span class="hero-stat-label">Ingredientes Premium</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-image-glow" aria-hidden="true"></div>
+        <div class="hero-image-frame">
+          <video
+            src="assets/acai-hero.mp4"
+            class="hero-image"
+            data-video-fallback
+            autoplay
+            loop
+            muted
+            playsinline
+            aria-label="Preparo do açaí premium Açaí Ki Delícia"
+          ></video>
+          <div class="hero-image-placeholder">
+            <span>Vídeo do açaí entra aqui</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <section class="launches" id="lancamentos">
 
@@ -90,90 +153,55 @@
     </div>
   </section>
 
-  <section class="shop-hero" id="hero">
-    <div class="shop-hero-inner">
-      <div class="shop-hero-intro">
-        <span class="shop-hero-eyebrow">Açaí Ki Delícia</span>
-        <h1 class="shop-hero-title">Sabores gelados pra todo momento</h1>
-      </div>
-
-      <div class="feature-cards">
-        <article class="feature-card feature-card-deep">
-          <div class="feature-card-media">
-            <video
-              src="assets/acai-hero.mp4"
-              class="feature-media"
-              data-video-fallback
-              autoplay
-              loop
-              muted
-              playsinline
-              aria-label="Açaí Premium"
-            ></video>
-            <div class="feature-card-placeholder"><span>Foto/vídeo entra aqui</span></div>
-          </div>
-          <span class="feature-card-label">Açaí Premium</span>
-        </article>
-
-        <article class="feature-card feature-card-medium">
-          <div class="feature-card-media feature-card-media-empty">
-            <span class="feature-card-placeholder-text">Foto entra aqui</span>
-          </div>
-          <span class="feature-card-label">Gelado Perfeito</span>
-        </article>
-
-        <article class="feature-card feature-card-light">
-          <div class="feature-card-media feature-card-media-empty">
-            <span class="feature-card-placeholder-text">Foto entra aqui</span>
-          </div>
-          <span class="feature-card-label">Refresco Total</span>
-        </article>
+  <section class="menu menu-bg-white" id="mais-vendidos">
+    <div class="menu-inner menu-inner-wide">
+      <div class="menu-header">
+        <span class="menu-eyebrow">Mais Vendidos</span>
+        <h2 class="menu-title">Os favoritos da casa</h2>
+        <p class="menu-subtitle">Os pedidos que mais saem — já testados e aprovados por quem já pediu.</p>
       </div>
 
       <div class="product-cards">
         <article class="product-card" data-price="29.99">
           <div class="product-card-media">
-            <span class="product-card-badge">Premium</span>
+            <span class="product-card-badge">Mais Pedido</span>
             <span class="product-card-placeholder-text">Foto entra aqui</span>
           </div>
           <div class="product-card-body">
             <h3 class="product-card-title">Açaí Chocopaçoca 500ml</h3>
             <p class="product-card-desc">Açaí cremoso com chocolate e paçoca — um clássico da casa.</p>
             <div class="product-card-footer">
-              <span class="product-card-price">
-                <s class="product-card-price-old">R$74,99</s>
-                R$29,99
-              </span>
+              <span class="product-card-price"><s class="product-card-price-old">R$74,99</s>R$29,99</span>
               <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
             </div>
           </div>
         </article>
 
-        <article class="product-card" data-price="22.00">
+        <article class="product-card" data-price="15.59">
           <div class="product-card-media">
-            <span class="product-card-badge">Cremoso</span>
+            <span class="product-card-badge">Favorito</span>
             <span class="product-card-placeholder-text">Foto entra aqui</span>
           </div>
           <div class="product-card-body">
-            <h3 class="product-card-title">Milkshake de Chocolate 400ml</h3>
-            <p class="product-card-desc">Milkshake batido na hora, bem cremoso.</p>
+            <h3 class="product-card-title">Cremosa Vitamina de Açaí 500ml</h3>
+            <p class="product-card-desc">Vitamina de açaí cremosa, leve e refrescante.</p>
             <div class="product-card-footer">
-              <span class="product-card-price">R$22,00</span>
+              <span class="product-card-price"><s class="product-card-price-old">R$19,49</s>R$15,59</span>
               <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
             </div>
           </div>
         </article>
 
-        <article class="product-card" data-price="20.00">
+        <article class="product-card" data-price="39.00">
           <div class="product-card-media">
-            <span class="product-card-badge">Crocante</span>
+            <span class="product-card-badge">Premium</span>
             <span class="product-card-placeholder-text">Foto entra aqui</span>
           </div>
           <div class="product-card-body">
-            <h3 class="product-card-title">Flurry Pistache com Amendoim 400ml</h3>
-            <p class="product-card-desc">Açaí batido com pistache e amendoim crocante.</p>
+            <h3 class="product-card-title">Ferrero Rocher 770ml</h3>
+            <p class="product-card-desc">Pote generoso com sabor de Ferrero Rocher.</p>
             <div class="product-card-footer">
-              <span class="product-card-price">R$20,00</span>
+              <span class="product-card-price"><s class="product-card-price-old">R$49,00</s>R$39,00</span>
               <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
             </div>
           </div>
@@ -491,6 +519,120 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="menu" id="combos">
+    <div class="menu-inner menu-inner-wide">
+      <div class="menu-header">
+        <span class="menu-eyebrow">Combos</span>
+        <h2 class="menu-title">Melhor pra dividir (ou não)</h2>
+        <p class="menu-subtitle">Combos com 2 unidades, direto do cardápio.</p>
+      </div>
+
+      <div class="product-cards">
+        <article class="product-card" data-price="30.00">
+          <div class="product-card-media">
+            <span class="product-card-badge">Combo</span>
+            <span class="product-card-placeholder-text">Foto entra aqui</span>
+          </div>
+          <div class="product-card-body">
+            <h3 class="product-card-title">2 Açaís Trufados de Leitinho com Morango 330ml</h3>
+            <p class="product-card-desc">Duas unidades, prontas pra dividir (ou não).</p>
+            <div class="product-card-footer">
+              <span class="product-card-price"><s class="product-card-price-old">R$50,00</s>R$30,00</span>
+              <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-price="48.95">
+          <div class="product-card-media">
+            <span class="product-card-badge">Combo</span>
+            <span class="product-card-placeholder-text">Foto entra aqui</span>
+          </div>
+          <div class="product-card-body">
+            <h3 class="product-card-title">2 Trufados de Chocolatudo 400ml</h3>
+            <p class="product-card-desc">Duas unidades bem chocolatudas.</p>
+            <div class="product-card-footer">
+              <span class="product-card-price"><s class="product-card-price-old">R$89,00</s>R$48,95</span>
+              <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-price="70.20">
+          <div class="product-card-media">
+            <span class="product-card-badge">Combo</span>
+            <span class="product-card-placeholder-text">Foto entra aqui</span>
+          </div>
+          <div class="product-card-body">
+            <h3 class="product-card-title">2 Marmitas de 1000ml</h3>
+            <p class="product-card-desc">Duas marmitas generosas pra matar a vontade.</p>
+            <div class="product-card-footer">
+              <span class="product-card-price"><s class="product-card-price-old">R$108,00</s>R$70,20</span>
+              <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="menu menu-bg-white" id="promocoes">
+    <div class="menu-inner menu-inner-wide">
+      <div class="menu-header">
+        <span class="menu-eyebrow">Promoções</span>
+        <h2 class="menu-title">Aproveite enquanto dura</h2>
+        <p class="menu-subtitle">Preços especiais em itens selecionados do cardápio.</p>
+      </div>
+
+      <div class="product-cards">
+        <article class="product-card" data-price="40.00">
+          <div class="product-card-media">
+            <span class="product-card-badge">-50%</span>
+            <span class="product-card-placeholder-text">Foto entra aqui</span>
+          </div>
+          <div class="product-card-body">
+            <h3 class="product-card-title">2 Cremosas Vitaminas Ninho, Nutella e Morango 300ml</h3>
+            <p class="product-card-desc">Duas vitaminas cremosas, metade do preço.</p>
+            <div class="product-card-footer">
+              <span class="product-card-price"><s class="product-card-price-old">R$80,00</s>R$40,00</span>
+              <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-price="30.40">
+          <div class="product-card-media">
+            <span class="product-card-badge">Promoção</span>
+            <span class="product-card-placeholder-text">Foto entra aqui</span>
+          </div>
+          <div class="product-card-body">
+            <h3 class="product-card-title">Nutella 400ml</h3>
+            <p class="product-card-desc">Pote de Nutella com preço especial.</p>
+            <div class="product-card-footer">
+              <span class="product-card-price"><s class="product-card-price-old">R$38,00</s>R$30,40</span>
+              <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card" data-price="34.65">
+          <div class="product-card-media">
+            <span class="product-card-badge">Promoção</span>
+            <span class="product-card-placeholder-text">Foto entra aqui</span>
+          </div>
+          <div class="product-card-body">
+            <h3 class="product-card-title">Marmita 1L</h3>
+            <p class="product-card-desc">Marmita completa com desconto.</p>
+            <div class="product-card-footer">
+              <span class="product-card-price"><s class="product-card-price-old">R$55,00</s>R$34,65</span>
+              <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
   </section>
