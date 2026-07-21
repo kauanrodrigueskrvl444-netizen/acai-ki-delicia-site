@@ -13,13 +13,13 @@ navLinks.querySelectorAll('a').forEach((link) => {
   });
 });
 
-const heroImage = document.getElementById('heroImage');
-if (heroImage) {
+const heroVideo = document.getElementById('heroImage');
+if (heroVideo) {
   const showPlaceholderIfBroken = () => {
-    if (heroImage.complete && heroImage.naturalWidth === 0) {
-      heroImage.closest('.hero-image-frame')?.classList.add('is-placeholder');
+    if (heroVideo.error) {
+      heroVideo.closest('.hero-image-frame')?.classList.add('is-placeholder');
     }
   };
-  heroImage.addEventListener('error', showPlaceholderIfBroken);
+  heroVideo.addEventListener('error', showPlaceholderIfBroken);
   showPlaceholderIfBroken();
 }
