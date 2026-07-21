@@ -16,7 +16,7 @@ navLinks.querySelectorAll('a').forEach((link) => {
 document.querySelectorAll('video[data-video-fallback]').forEach((video) => {
   const showPlaceholderIfBroken = () => {
     if (video.error) {
-      video.closest('.hero-image-frame, .launch-card-media')?.classList.add('is-placeholder');
+      video.closest('.hero-image-frame, .launch-card-media, .feature-card-media')?.classList.add('is-placeholder');
     }
   };
   video.addEventListener('error', showPlaceholderIfBroken);
