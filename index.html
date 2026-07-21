@@ -23,6 +23,7 @@
       </button>
 
       <ul class="nav-links" id="navLinks">
+        <li><a href="#lancamentos">Lançamentos</a></li>
         <li><a href="#combos">Combos</a></li>
         <li><a href="#promocoes">Promoções</a></li>
         <li><a href="#monte-seu-acai">Monte seu Açaí</a></li>
@@ -73,7 +74,7 @@
           <video
             src="assets/acai-hero.mp4"
             class="hero-image"
-            id="heroImage"
+            data-video-fallback
             autoplay
             loop
             muted
@@ -84,6 +85,64 @@
             <span>Vídeo do açaí entra aqui</span>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="launches" id="lancamentos">
+    <div class="launches-drip" aria-hidden="true">
+      <span class="drip drip-gold"></span>
+      <span class="drip drip-purple"></span>
+      <span class="drip drip-gold drip-sm"></span>
+      <span class="drip drip-purple drip-sm"></span>
+      <span class="drip drip-gold"></span>
+      <span class="drip drip-purple drip-sm"></span>
+      <span class="drip drip-gold drip-sm"></span>
+      <span class="drip drip-purple"></span>
+      <span class="drip drip-gold"></span>
+    </div>
+
+    <div class="launches-inner">
+      <div class="launches-header">
+        <span class="launches-eyebrow">Novidades</span>
+        <h2 class="launches-title">Lançamentos</h2>
+        <p class="launches-subtitle">Os sabores mais novos da casa, direto pra você experimentar antes de todo mundo.</p>
+      </div>
+
+      <div class="launches-grid">
+        <article class="launch-card">
+          <div class="launch-card-media">
+            <video
+              src="assets/lancamento-1.mp4"
+              class="launch-media"
+              data-video-fallback
+              autoplay
+              loop
+              muted
+              playsinline
+              aria-label="Lançamento Açaí com Pistache - Açaí Ki Delícia"
+            ></video>
+            <div class="launch-card-placeholder">
+              <span>Vídeo do lançamento entra aqui</span>
+            </div>
+          </div>
+          <div class="launch-card-body">
+            <h3 class="launch-card-title">Açaí com Pistache</h3>
+            <p class="launch-card-desc">Acompanha Ferrero Rocher, Nutella e banana.</p>
+          </div>
+        </article>
+
+        <article class="launch-card launch-card-empty">
+          <div class="launch-card-media launch-card-media-empty">
+            <span>Em breve</span>
+          </div>
+        </article>
+
+        <article class="launch-card launch-card-empty">
+          <div class="launch-card-media launch-card-media-empty">
+            <span>Em breve</span>
+          </div>
+        </article>
       </div>
     </div>
   </section>
