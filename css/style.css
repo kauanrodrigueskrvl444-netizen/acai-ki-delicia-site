@@ -83,8 +83,9 @@ img {
 
 .logo-img {
   height: 44px;
-  width: auto;
-  border-radius: 8px;
+  width: 44px;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .nav-links {
