@@ -647,6 +647,17 @@ img {
   padding: 5rem 1.25rem;
 }
 
+.menu.addons {
+  background: #ffffff;
+}
+
+.menu-item-tbd {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: rgba(58, 13, 63, 0.4);
+  white-space: nowrap;
+}
+
 .menu-inner {
   max-width: 900px;
   margin: 0 auto;
