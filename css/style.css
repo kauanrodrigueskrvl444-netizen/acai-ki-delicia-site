@@ -1,3 +1,13 @@
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 :root {
   --color-bg: #3a0d3f;
   --color-bg-alt: #59155c;
@@ -530,7 +540,21 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   background: linear-gradient(160deg, rgba(89, 21, 92, 0.08), rgba(232, 184, 74, 0.1));
+}
+
+.product-card-image,
+.product-card-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-card-image,
+.product-card:hover .product-card-video {
+  transform: scale(1.05);
 }
 
 .product-card-placeholder-text {
@@ -836,17 +860,6 @@ img {
   background: var(--color-text-light);
   color: var(--color-bg);
   padding: 5rem 1.25rem;
-}
-
-.menu.addons {
-  background: #ffffff;
-}
-
-.menu-item-tbd {
-  font-size: 0.8rem;
-  font-style: italic;
-  color: rgba(58, 13, 63, 0.4);
-  white-space: nowrap;
 }
 
 .menu-inner {
@@ -1162,5 +1175,254 @@ img {
   .cart-drawer,
   .cart-count {
     transition: none;
+  }
+}
+
+/* Monte seu Açaí — builder */
+
+.builder {
+  background: #ffffff;
+  color: var(--color-bg);
+  padding: 5rem 1.25rem;
+}
+
+.builder-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.builder-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.builder-step-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.9rem;
+}
+
+.builder-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-bg-alt);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.builder-step-note {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: rgba(58, 13, 63, 0.45);
+  margin-bottom: 0.75rem;
+}
+
+.builder-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.builder-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(89, 21, 92, 0.12);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.builder-option:hover {
+  border-color: rgba(89, 21, 92, 0.3);
+}
+
+.builder-option:has(input:checked) {
+  border-color: var(--color-gold);
+  background: rgba(232, 184, 74, 0.08);
+}
+
+.builder-option input {
+  accent-color: var(--color-bg-alt);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.builder-option-name {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.builder-option-price {
+  font-weight: 700;
+  color: var(--color-bg-alt);
+  white-space: nowrap;
+}
+
+.builder-options-tbd {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.builder-option-tbd {
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px dashed rgba(89, 21, 92, 0.2);
+  font-size: 0.85rem;
+  font-style: italic;
+  color: rgba(58, 13, 63, 0.45);
+}
+
+.builder-summary {
+  position: sticky;
+  top: 90px;
+  padding: 1.5rem;
+  border-radius: 20px;
+  background: var(--color-text-light);
+  border: 1px solid rgba(89, 21, 92, 0.1);
+}
+
+.builder-summary-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.builder-summary-empty {
+  font-size: 0.85rem;
+  color: rgba(58, 13, 63, 0.5);
+}
+
+.builder-summary-empty.is-hidden {
+  display: none;
+}
+
+.builder-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  min-height: 24px;
+}
+
+.builder-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.88rem;
+}
+
+.builder-summary-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  margin-bottom: 1.1rem;
+  border-top: 1px solid rgba(89, 21, 92, 0.12);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.builder-add-all {
+  width: 100%;
+  text-align: center;
+}
+
+@media (min-width: 900px) {
+  .builder-layout {
+    grid-template-columns: 1.6fr 1fr;
+  }
+
+  .builder-summary {
+    align-self: start;
+  }
+}
+
+/* Rodapé */
+
+.site-footer {
+  background: #260828;
+  color: rgba(253, 246, 240, 0.7);
+  padding: 3.5rem 1.25rem 1.5rem;
+}
+
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.footer-logo {
+  height: 48px;
+  width: 48px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.footer-tagline {
+  font-size: 0.9rem;
+  max-width: 30ch;
+}
+
+.footer-col-title {
+  color: var(--color-text-light);
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+}
+
+.footer-links a {
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--color-gold);
+}
+
+.footer-bottom {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(253, 246, 240, 0.1);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .footer-inner {
+    grid-template-columns: 1.3fr 1fr 1fr;
   }
 }

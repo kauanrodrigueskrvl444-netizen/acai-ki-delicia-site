@@ -208,3 +208,59 @@ cartCheckoutBtn?.addEventListener('click', () => {
 });
 
 renderCart();
+
+// ---- Monte seu Açaí — builder ----
+const builderCheckboxes = document.querySelectorAll('[data-builder-item]');
+const builderSummaryList = document.getElementById('builderSummaryList');
+const builderSummaryEmpty = document.getElementById('builderSummaryEmpty');
+const builderSummaryTotal = document.getElementById('builderSummaryTotal');
+const builderAddAllBtn = document.getElementById('builderAddAll');
+
+function getBuilderSelection() {
+  return Array.from(builderCheckboxes).filter((checkbox) => checkbox.checked);
+}
+
+function renderBuilderSummary() {
+  if (!builderSummaryList) return;
+
+  const selected = getBuilderSelection();
+  builderSummaryList.querySelectorAll('.builder-summary-row').forEach((row) => row.remove());
+  builderSummaryEmpty?.classList.toggle('is-hidden', selected.length > 0);
+
+  let total = 0;
+  selected.forEach((checkbox) => {
+    const price = parseFloat(checkbox.dataset.price);
+    total += price;
+
+    const row = document.createElement('div');
+    row.className = 'builder-summary-row';
+    const name = document.createElement('span');
+    name.textContent = checkbox.dataset.name;
+    const priceEl = document.createElement('span');
+    priceEl.textContent = formatPrice(price);
+    row.append(name, priceEl);
+    builderSummaryList.appendChild(row);
+  });
+
+  if (builderSummaryTotal) builderSummaryTotal.textContent = formatPrice(total);
+}
+
+builderCheckboxes.forEach((checkbox) => {
+  checkbox.addEventListener('change', renderBuilderSummary);
+});
+
+builderAddAllBtn?.addEventListener('click', () => {
+  const selected = getBuilderSelection();
+  if (selected.length === 0) return;
+
+  selected.forEach((checkbox) => {
+    addToCart(checkbox.dataset.name, parseFloat(checkbox.dataset.price));
+  });
+
+  builderCheckboxes.forEach((checkbox) => {
+    if (!checkbox.disabled) checkbox.checked = false;
+  });
+  renderBuilderSummary();
+});
+
+renderBuilderSummary();
