@@ -76,11 +76,15 @@ img {
 }
 
 .logo {
-  font-family: var(--font-logo);
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--color-gold);
+  display: inline-flex;
+  align-items: center;
   flex-shrink: 0;
+}
+
+.logo-img {
+  height: 44px;
+  width: auto;
+  border-radius: 8px;
 }
 
 .nav-links {

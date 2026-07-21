@@ -12,7 +12,9 @@
 
   <header class="site-header">
     <nav class="navbar">
-      <a href="#hero" class="logo">Açaí Ki Delícia</a>
+      <a href="#hero" class="logo">
+        <img src="assets/logo.png" alt="Açaí Ki Delícia" class="logo-img">
+      </a>
 
       <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
         <span></span>
@@ -68,14 +70,18 @@
       <div class="hero-right">
         <div class="hero-image-glow" aria-hidden="true"></div>
         <div class="hero-image-frame">
-          <img
-            src="assets/acai-hero.jpg"
-            alt="Açaí premium Açaí Ki Delícia"
+          <video
+            src="assets/acai-hero.mp4"
             class="hero-image"
             id="heroImage"
-          >
+            autoplay
+            loop
+            muted
+            playsinline
+            aria-label="Açaí premium Açaí Ki Delícia"
+          ></video>
           <div class="hero-image-placeholder">
-            <span>Foto do açaí entra aqui</span>
+            <span>Vídeo do açaí entra aqui</span>
           </div>
         </div>
       </div>
