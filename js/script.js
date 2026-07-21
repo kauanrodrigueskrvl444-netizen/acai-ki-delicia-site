@@ -22,3 +22,23 @@ document.querySelectorAll('video[data-video-fallback]').forEach((video) => {
   video.addEventListener('error', showPlaceholderIfBroken);
   showPlaceholderIfBroken();
 });
+
+const menuFilters = document.getElementById('menuFilters');
+if (menuFilters) {
+  const categories = document.querySelectorAll('.menu-category');
+
+  menuFilters.addEventListener('click', (event) => {
+    const button = event.target.closest('.menu-filter');
+    if (!button) return;
+
+    menuFilters.querySelectorAll('.menu-filter').forEach((btn) => {
+      btn.classList.toggle('is-active', btn === button);
+    });
+
+    const filter = button.dataset.filter;
+    categories.forEach((category) => {
+      const matches = filter === 'todos' || category.dataset.category === filter;
+      category.classList.toggle('is-hidden', !matches);
+    });
+  });
+}

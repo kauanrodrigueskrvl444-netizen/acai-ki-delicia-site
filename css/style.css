@@ -714,3 +714,143 @@ img {
     font-size: 2.4rem;
   }
 }
+
+/* Cardápio */
+
+.menu {
+  background: var(--color-text-light);
+  color: var(--color-bg);
+  padding: 5rem 1.25rem;
+}
+
+.menu-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.menu-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  text-align: center;
+  max-width: 46ch;
+  margin: 0 auto 2.5rem;
+}
+
+.menu-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(89, 21, 92, 0.08);
+  border: 1px solid rgba(89, 21, 92, 0.2);
+  color: var(--color-bg-alt);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.menu-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.menu-subtitle {
+  font-size: 1rem;
+  color: rgba(58, 13, 63, 0.7);
+}
+
+.menu-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 2.5rem;
+}
+
+.menu-filter {
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(89, 21, 92, 0.25);
+  background: transparent;
+  color: var(--color-bg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.menu-filter:hover {
+  border-color: var(--color-bg-alt);
+}
+
+.menu-filter.is-active {
+  background: var(--color-bg);
+  border-color: var(--color-bg);
+  color: var(--color-text-light);
+}
+
+.menu-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.menu-category.is-hidden {
+  display: none;
+}
+
+.menu-category-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-bg-alt);
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(232, 184, 74, 0.4);
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.menu-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.menu-item-name {
+  font-size: 0.95rem;
+}
+
+.menu-item-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--color-bg-alt);
+}
+
+.menu-item-price-old {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(58, 13, 63, 0.4);
+}
+
+@media (min-width: 640px) {
+  .menu-categories {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 3rem;
+    row-gap: 2.5rem;
+    align-items: start;
+  }
+}
