@@ -13,13 +13,12 @@ navLinks.querySelectorAll('a').forEach((link) => {
   });
 });
 
-const heroVideo = document.getElementById('heroImage');
-if (heroVideo) {
+document.querySelectorAll('video[data-video-fallback]').forEach((video) => {
   const showPlaceholderIfBroken = () => {
-    if (heroVideo.error) {
-      heroVideo.closest('.hero-image-frame')?.classList.add('is-placeholder');
+    if (video.error) {
+      video.closest('.hero-image-frame, .launch-card-media')?.classList.add('is-placeholder');
     }
   };
-  heroVideo.addEventListener('error', showPlaceholderIfBroken);
+  video.addEventListener('error', showPlaceholderIfBroken);
   showPlaceholderIfBroken();
-}
+});
