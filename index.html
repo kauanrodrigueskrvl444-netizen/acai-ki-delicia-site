@@ -32,7 +32,14 @@
         <li><a href="#contato">Contato</a></li>
       </ul>
 
-      <a href="https://wa.me/5511993996423" target="_blank" rel="noopener" class="btn-cta nav-cta">Fazer Pedido</a>
+      <button class="cart-toggle" id="cartToggle" aria-label="Ver carrinho">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
     </nav>
   </header>
 
@@ -124,7 +131,7 @@
       </div>
 
       <div class="product-cards">
-        <article class="product-card">
+        <article class="product-card" data-price="29.99">
           <div class="product-card-media">
             <span class="product-card-badge">Premium</span>
             <span class="product-card-placeholder-text">Foto entra aqui</span>
@@ -137,12 +144,12 @@
                 <s class="product-card-price-old">R$74,99</s>
                 R$29,99
               </span>
-              <a href="https://wa.me/5511993996423" target="_blank" rel="noopener" class="btn-cta product-card-btn">Pedir</a>
+              <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
             </div>
           </div>
         </article>
 
-        <article class="product-card">
+        <article class="product-card" data-price="22.00">
           <div class="product-card-media">
             <span class="product-card-badge">Cremoso</span>
             <span class="product-card-placeholder-text">Foto entra aqui</span>
@@ -152,12 +159,12 @@
             <p class="product-card-desc">Milkshake batido na hora, bem cremoso.</p>
             <div class="product-card-footer">
               <span class="product-card-price">R$22,00</span>
-              <a href="https://wa.me/5511993996423" target="_blank" rel="noopener" class="btn-cta product-card-btn">Pedir</a>
+              <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
             </div>
           </div>
         </article>
 
-        <article class="product-card">
+        <article class="product-card" data-price="20.00">
           <div class="product-card-media">
             <span class="product-card-badge">Crocante</span>
             <span class="product-card-placeholder-text">Foto entra aqui</span>
@@ -167,7 +174,7 @@
             <p class="product-card-desc">Açaí batido com pistache e amendoim crocante.</p>
             <div class="product-card-footer">
               <span class="product-card-price">R$20,00</span>
-              <a href="https://wa.me/5511993996423" target="_blank" rel="noopener" class="btn-cta product-card-btn">Pedir</a>
+              <button class="btn-cta product-card-btn" data-add-to-cart>Adicionar</button>
             </div>
           </div>
         </article>
@@ -198,37 +205,45 @@
         <div class="menu-category" data-category="acai">
           <h3 class="menu-category-title">Açaí</h3>
           <div class="menu-list">
-            <div class="menu-item">
+            <div class="menu-item" data-price="30.00">
               <span class="menu-item-name">2 açaís trufados de leitinho com morango 330ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$50,00</s><strong>R$30,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="33.60">
               <span class="menu-item-name">2 açaís trufados de doce de leite, banana e paçoca</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$70,00</s><strong>R$33,60</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="29.99">
               <span class="menu-item-name">Cremoso açaí chocopaçoca 500ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$74,99</s><strong>R$29,99</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="24.85">
               <span class="menu-item-name">Cremoso açaí no copo 400ml, 2 camadas</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$35,50</s><strong>R$24,85</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="16.00">
               <span class="menu-item-name">Açaí tradicional "turbine seu açaí"</span>
               <span class="menu-item-price"><strong>R$16,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="48.95">
               <span class="menu-item-name">2 trufados de chocolatudo 400ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$89,00</s><strong>R$48,95</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="27.00">
               <span class="menu-item-name">Açaí casadinho (açaí + cupuaçu)</span>
               <span class="menu-item-price"><strong>R$27,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="16.00">
               <span class="menu-item-name">Cupuaçu</span>
               <span class="menu-item-price"><strong>R$16,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
           </div>
         </div>
@@ -236,21 +251,25 @@
         <div class="menu-category" data-category="vitaminas">
           <h3 class="menu-category-title">Vitaminas</h3>
           <div class="menu-list">
-            <div class="menu-item">
+            <div class="menu-item" data-price="15.59">
               <span class="menu-item-name">Cremosa vitamina de açaí 500ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$19,49</s><strong>R$15,59</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="40.00">
               <span class="menu-item-name">2 cremosas vitaminas ninho, nutella e morango 300ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$80,00</s><strong>R$40,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="30.00">
               <span class="menu-item-name">Cremosa vitamina de açaí 1000ml</span>
               <span class="menu-item-price"><strong>R$30,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="22.50">
               <span class="menu-item-name">Cremosa vitamina de cupuaçu</span>
               <span class="menu-item-price"><strong>R$22,50</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
           </div>
         </div>
@@ -258,25 +277,30 @@
         <div class="menu-category" data-category="potes">
           <h3 class="menu-category-title">Potes Premium</h3>
           <div class="menu-list">
-            <div class="menu-item">
+            <div class="menu-item" data-price="39.00">
               <span class="menu-item-name">Ferrero Rocher 770ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$49,00</s><strong>R$39,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="30.40">
               <span class="menu-item-name">Nutella 400ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$38,00</s><strong>R$30,40</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="52.49">
               <span class="menu-item-name">Creme ninho, nutella e morango</span>
               <span class="menu-item-price"><strong>R$52,49</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="35.00">
               <span class="menu-item-name">Trufado Bueno 500ml</span>
               <span class="menu-item-price"><strong>R$35,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="28.00">
               <span class="menu-item-name">Ouro branco 300ml</span>
               <span class="menu-item-price"><strong>R$28,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
           </div>
         </div>
@@ -284,21 +308,25 @@
         <div class="menu-category" data-category="milkshakes">
           <h3 class="menu-category-title">Milkshakes</h3>
           <div class="menu-list">
-            <div class="menu-item">
+            <div class="menu-item" data-price="16.00">
               <span class="menu-item-name">Milkshake de ovomaltine 400ml</span>
               <span class="menu-item-price"><strong>R$16,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="16.00">
               <span class="menu-item-name">Milkshake de morango 300ml</span>
               <span class="menu-item-price"><strong>R$16,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="22.00">
               <span class="menu-item-name">Milkshake de chocolate 400ml</span>
               <span class="menu-item-price"><strong>R$22,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="22.00">
               <span class="menu-item-name">Milkshake de maracujá</span>
               <span class="menu-item-price"><strong>R$22,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
           </div>
         </div>
@@ -306,13 +334,15 @@
         <div class="menu-category" data-category="marmitas">
           <h3 class="menu-category-title">Marmitas</h3>
           <div class="menu-list">
-            <div class="menu-item">
+            <div class="menu-item" data-price="34.65">
               <span class="menu-item-name">Marmita 1L</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$55,00</s><strong>R$34,65</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="70.20">
               <span class="menu-item-name">2 marmitas de 1000ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$108,00</s><strong>R$70,20</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
           </div>
         </div>
@@ -320,13 +350,15 @@
         <div class="menu-category" data-category="flurrys">
           <h3 class="menu-category-title">Flurrys</h3>
           <div class="menu-list">
-            <div class="menu-item">
+            <div class="menu-item" data-price="22.00">
               <span class="menu-item-name">Flurry M&amp;M's com caramelo</span>
               <span class="menu-item-price"><strong>R$22,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="20.00">
               <span class="menu-item-name">Flurry pistache com amendoim 400ml</span>
               <span class="menu-item-price"><strong>R$20,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
           </div>
         </div>
@@ -334,27 +366,50 @@
         <div class="menu-category" data-category="bebidas">
           <h3 class="menu-category-title">Bebidas &amp; Extras</h3>
           <div class="menu-list">
-            <div class="menu-item">
+            <div class="menu-item" data-price="6.49">
               <span class="menu-item-name">Coca-Cola Zero 310ml</span>
               <span class="menu-item-price"><strong>R$6,49</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="6.49">
               <span class="menu-item-name">Guaraná Antarctica 350ml</span>
               <span class="menu-item-price"><strong>R$6,49</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="3.49">
               <span class="menu-item-name">Água mineral sem gás 500ml</span>
               <span class="menu-item-price"><strong>R$3,49</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" data-price="8.00">
               <span class="menu-item-name">KitKat</span>
               <span class="menu-item-price"><strong>R$8,00</strong></span>
+              <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Carrinho de compras">
+    <div class="cart-drawer-header">
+      <h2>Seu carrinho</h2>
+      <button class="cart-close" id="cartClose" aria-label="Fechar carrinho">×</button>
+    </div>
+    <div class="cart-drawer-body">
+      <p class="cart-empty" id="cartEmpty">Seu carrinho está vazio.</p>
+      <div class="cart-items" id="cartItems"></div>
+    </div>
+    <div class="cart-drawer-footer" id="cartFooter">
+      <div class="cart-total-row">
+        <span>Total</span>
+        <strong id="cartTotal">R$0,00</strong>
+      </div>
+      <button class="btn-cta cart-checkout" id="cartCheckout">Finalizar pedido no WhatsApp</button>
+    </div>
+  </aside>
 
   <script src="js/script.js"></script>
 </body>
