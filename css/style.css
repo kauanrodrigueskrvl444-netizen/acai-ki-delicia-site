@@ -34,6 +34,10 @@ body {
   line-height: 1.5;
 }
 
+body.no-scroll {
+  overflow: hidden;
+}
+
 a {
   text-decoration: none;
   color: inherit;
@@ -699,7 +703,11 @@ img {
 
   .nav-links {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    height: 100dvh;
     z-index: 150;
     background-color: var(--color-bg);
     flex-direction: column;
