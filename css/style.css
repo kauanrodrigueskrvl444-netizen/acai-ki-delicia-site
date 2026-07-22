@@ -1283,21 +1283,6 @@ img {
   white-space: nowrap;
 }
 
-.builder-options-tbd {
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-.builder-option-tbd {
-  padding: 0.5rem 0.9rem;
-  border-radius: 999px;
-  border: 1px dashed rgba(89, 21, 92, 0.2);
-  font-size: 0.85rem;
-  font-style: italic;
-  color: rgba(58, 13, 63, 0.45);
-}
-
 .builder-summary {
   position: sticky;
   top: 90px;
