@@ -36,6 +36,21 @@ document.querySelectorAll('video[data-video-fallback]').forEach((video) => {
   showPlaceholderIfBroken();
 });
 
+document.querySelectorAll('img[data-image-fallback]').forEach((img) => {
+  const showPlaceholderIfBroken = () => {
+    if (img.complete && img.naturalWidth === 0) {
+      const mediaBox = img.closest('.product-card-media');
+      if (mediaBox) {
+        mediaBox.classList.add('is-placeholder');
+      } else {
+        img.style.display = 'none';
+      }
+    }
+  };
+  img.addEventListener('error', showPlaceholderIfBroken);
+  showPlaceholderIfBroken();
+});
+
 const menuFilters = document.getElementById('menuFilters');
 if (menuFilters) {
   const categories = document.querySelectorAll('.menu-category');
