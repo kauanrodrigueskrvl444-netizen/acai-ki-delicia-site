@@ -29,7 +29,7 @@ navLinks.querySelectorAll('a').forEach((link) => {
 document.querySelectorAll('video[data-video-fallback]').forEach((video) => {
   const showPlaceholderIfBroken = () => {
     if (video.error) {
-      video.closest('.hero-image-frame, .launch-card-media, .feature-card-media')?.classList.add('is-placeholder');
+      video.closest('.hero-image-frame, .launch-card-media, .feature-card-media, .launch-feature-frame')?.classList.add('is-placeholder');
     }
   };
   video.addEventListener('error', showPlaceholderIfBroken);
@@ -277,7 +277,7 @@ builderAddAllBtn?.addEventListener('click', () => {
   });
 
   builderCheckboxes.forEach((checkbox) => {
-    if (!checkbox.disabled) checkbox.checked = false;
+    if (!checkbox.disabled && checkbox.type !== 'radio') checkbox.checked = false;
   });
   renderBuilderSummary();
 });
