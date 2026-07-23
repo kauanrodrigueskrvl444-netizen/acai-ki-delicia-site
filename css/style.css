@@ -1740,6 +1740,58 @@ img {
   }
 }
 
+/* Sobre */
+
+.about-content {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.about-text {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(58, 13, 63, 0.75);
+  text-align: center;
+}
+
+.about-facts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.about-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: 16px;
+  background: rgba(89, 21, 92, 0.05);
+  border: 1px solid rgba(89, 21, 92, 0.1);
+}
+
+.about-fact-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-bg-alt);
+}
+
+.about-fact-desc {
+  font-size: 0.9rem;
+  color: rgba(58, 13, 63, 0.7);
+}
+
+@media (min-width: 640px) {
+  .about-facts {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* Avaliações / Instagram */
 
 .social-proof {
