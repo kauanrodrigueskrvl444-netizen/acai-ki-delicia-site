@@ -122,12 +122,12 @@ function updateQuantity(name, delta) {
   renderCart();
 }
 
-function addToCart(name, price) {
+function addToCart(name, price, quantity = 1) {
   const existing = cart.find((item) => item.name === name);
   if (existing) {
-    existing.quantity += 1;
+    existing.quantity += quantity;
   } else {
-    cart.push({ name, price, quantity: 1 });
+    cart.push({ name, price, quantity });
   }
   saveCart();
   renderCart();
@@ -201,18 +201,9 @@ cartClose?.addEventListener('click', closeCart);
 cartOverlay?.addEventListener('click', closeCart);
 
 document.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-add-to-cart]');
-  if (!button) return;
-
-  const container = button.closest('[data-price]');
-  if (!container) return;
-
-  const nameEl = container.querySelector('.menu-item-name, .product-card-title');
-  const name = nameEl?.textContent.trim();
-  const price = parseFloat(container.dataset.price);
-
-  if (!name || Number.isNaN(price)) return;
-  addToCart(name, price);
+  const container = event.target.closest('.product-card, .menu-item');
+  if (!container || !container.dataset.price) return;
+  openProductModal(container);
 });
 
 cartCheckoutBtn?.addEventListener('click', () => {
@@ -227,6 +218,206 @@ cartCheckoutBtn?.addEventListener('click', () => {
 });
 
 renderCart();
+
+// ---- Modal do produto ----
+const COMPLEMENTS = [
+  {
+    category: 'Frutas',
+    items: [
+      { name: 'Banana', price: 2.50 },
+      { name: 'Uva', price: 2.50 },
+      { name: 'Morango', price: 4.00 },
+      { name: 'Kiwi', price: 3.00 },
+      { name: 'Manga', price: 3.50 },
+    ],
+  },
+  {
+    category: 'Secos',
+    items: [
+      { name: 'Amendoim', price: 3.00 },
+      { name: 'Paçoca Santa Helena', price: 3.00 },
+    ],
+  },
+  {
+    category: 'Cremes',
+    items: [
+      { name: 'Nutella', price: 14.00 },
+      { name: 'Creme de Avelã', price: 8.00 },
+      { name: 'Creme de Ninho', price: 8.00 },
+      { name: 'Creme de Ovomaltine', price: 10.00 },
+      { name: 'Creme Bueno', price: 7.00 },
+      { name: 'Creme de Cookies', price: 7.00 },
+      { name: 'Cupuaçu', price: 4.50 },
+      { name: 'Leite ninho em pó Nestle', price: 3.50 },
+      { name: 'Leite Condensado', price: 2.00 },
+      { name: 'Leite em Pó', price: 2.00 },
+    ],
+  },
+  {
+    category: 'Chocolates',
+    items: [
+      { name: 'Bis Branco', price: 3.00 },
+      { name: 'Bis Preto', price: 3.00 },
+      { name: 'KitKat', price: 7.00 },
+      { name: 'Trento Bites', price: 7.00 },
+      { name: 'Ovomaltine', price: 3.00 },
+      { name: 'Gotas de Chocolate', price: 3.00 },
+      { name: 'Ouro Branco', price: 3.00 },
+      { name: 'Sonho de Valsa', price: 3.00 },
+      { name: 'Twix', price: 3.00 },
+      { name: 'Sucrilhos', price: 2.50 },
+      { name: 'Chocoball', price: 3.00 },
+    ],
+  },
+];
+
+const productModal = document.getElementById('productModal');
+const productModalOverlay = document.getElementById('productModalOverlay');
+const productModalClose = document.getElementById('productModalClose');
+const productModalMedia = document.getElementById('productModalMedia');
+const productModalImage = document.getElementById('productModalImage');
+const productModalTitle = document.getElementById('productModalTitle');
+const productModalDesc = document.getElementById('productModalDesc');
+const productModalBasePrice = document.getElementById('productModalBasePrice');
+const productModalComplements = document.getElementById('productModalComplements');
+const productModalQtyMinus = document.getElementById('productModalQtyMinus');
+const productModalQtyPlus = document.getElementById('productModalQtyPlus');
+const productModalQtyValue = document.getElementById('productModalQtyValue');
+const productModalAdd = document.getElementById('productModalAdd');
+const productModalTotal = document.getElementById('productModalTotal');
+
+let modalProduct = null;
+let modalQty = 1;
+
+function renderComplementsList() {
+  if (!productModalComplements) return;
+  productModalComplements.innerHTML = '';
+
+  COMPLEMENTS.forEach((group) => {
+    const section = document.createElement('div');
+    section.className = 'product-modal-complement-group';
+
+    const title = document.createElement('h4');
+    title.className = 'product-modal-complement-title';
+    title.textContent = group.category;
+    section.appendChild(title);
+
+    group.items.forEach((item) => {
+      const label = document.createElement('label');
+      label.className = 'builder-option';
+
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.dataset.complementName = item.name;
+      input.dataset.complementPrice = String(item.price);
+      input.addEventListener('change', updateModalTotal);
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'builder-option-name';
+      nameSpan.textContent = item.name;
+
+      const priceSpan = document.createElement('span');
+      priceSpan.className = 'builder-option-price';
+      priceSpan.textContent = formatPrice(item.price);
+
+      label.append(input, nameSpan, priceSpan);
+      section.appendChild(label);
+    });
+
+    productModalComplements.appendChild(section);
+  });
+}
+
+function getSelectedComplements() {
+  if (!productModalComplements) return [];
+  return Array.from(productModalComplements.querySelectorAll('input[type="checkbox"]:checked')).map(
+    (input) => ({
+      name: input.dataset.complementName,
+      price: parseFloat(input.dataset.complementPrice),
+    })
+  );
+}
+
+function updateModalTotal() {
+  if (!modalProduct) return;
+  const complements = getSelectedComplements();
+  const unitPrice = modalProduct.price + complements.reduce((sum, c) => sum + c.price, 0);
+  if (productModalTotal) productModalTotal.textContent = formatPrice(unitPrice * modalQty);
+}
+
+function openProductModal(container) {
+  const nameEl = container.querySelector('.menu-item-name, .product-card-title');
+  const name = nameEl?.textContent.trim();
+  const price = parseFloat(container.dataset.price);
+  if (!name || Number.isNaN(price)) return;
+
+  const descEl = container.querySelector('.product-card-desc');
+  const desc = descEl?.textContent.trim() || '';
+
+  const imgEl = container.querySelector('.product-card-image, .menu-item-thumb');
+  const imgSrc = imgEl?.getAttribute('src') || '';
+
+  modalProduct = { name, price };
+  modalQty = 1;
+
+  if (productModalTitle) productModalTitle.textContent = name;
+  if (productModalDesc) {
+    productModalDesc.textContent = desc;
+    productModalDesc.classList.toggle('is-hidden', !desc);
+  }
+  if (productModalBasePrice) productModalBasePrice.textContent = `Preço base: ${formatPrice(price)}`;
+  if (productModalQtyValue) productModalQtyValue.textContent = String(modalQty);
+
+  if (imgSrc && productModalImage) {
+    productModalImage.src = imgSrc;
+    productModalImage.alt = name;
+    productModalMedia?.classList.remove('is-hidden');
+  } else {
+    productModalMedia?.classList.add('is-hidden');
+  }
+
+  renderComplementsList();
+  updateModalTotal();
+
+  productModal?.classList.add('is-open');
+  productModalOverlay?.classList.add('is-open');
+  document.body.classList.add('no-scroll');
+}
+
+function closeProductModal() {
+  productModal?.classList.remove('is-open');
+  productModalOverlay?.classList.remove('is-open');
+  document.body.classList.remove('no-scroll');
+  modalProduct = null;
+}
+
+productModalClose?.addEventListener('click', closeProductModal);
+productModalOverlay?.addEventListener('click', closeProductModal);
+
+productModalQtyMinus?.addEventListener('click', () => {
+  if (modalQty <= 1) return;
+  modalQty -= 1;
+  if (productModalQtyValue) productModalQtyValue.textContent = String(modalQty);
+  updateModalTotal();
+});
+
+productModalQtyPlus?.addEventListener('click', () => {
+  modalQty += 1;
+  if (productModalQtyValue) productModalQtyValue.textContent = String(modalQty);
+  updateModalTotal();
+});
+
+productModalAdd?.addEventListener('click', () => {
+  if (!modalProduct) return;
+  const complements = getSelectedComplements();
+  const unitPrice = modalProduct.price + complements.reduce((sum, c) => sum + c.price, 0);
+  const finalName = complements.length
+    ? `${modalProduct.name} (+ ${complements.map((c) => c.name).join(', ')})`
+    : modalProduct.name;
+
+  addToCart(finalName, unitPrice, modalQty);
+  closeProductModal();
+});
 
 // ---- Monte seu Açaí — builder ----
 const builderCheckboxes = document.querySelectorAll('[data-builder-item]');

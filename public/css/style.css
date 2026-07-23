@@ -1335,6 +1335,170 @@ img {
 
 /* Carrinho */
 
+/* Modal do produto */
+
+.product-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(20, 5, 22, 0.6);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.product-modal-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.product-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 401;
+  width: min(92%, 480px);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  color: var(--color-bg);
+  border-radius: 24px;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -48%) scale(0.97);
+  transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
+}
+
+.product-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.product-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(253, 246, 240, 0.9);
+  color: var(--color-bg);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.product-modal-media {
+  position: relative;
+  height: 200px;
+  flex-shrink: 0;
+  background: linear-gradient(160deg, rgba(89, 21, 92, 0.08), rgba(232, 184, 74, 0.1));
+}
+
+.product-modal-media.is-hidden {
+  display: none;
+}
+
+.product-modal-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-modal-body {
+  min-height: 0;
+  flex: 1;
+  padding: 1.5rem 1.5rem 0.5rem;
+  overflow-y: auto;
+}
+
+.product-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.product-modal-desc {
+  font-size: 0.9rem;
+  color: rgba(58, 13, 63, 0.65);
+  margin-bottom: 0.75rem;
+}
+
+.product-modal-desc.is-hidden {
+  display: none;
+}
+
+.product-modal-base-price {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-bg-alt);
+  margin-bottom: 1.25rem;
+}
+
+.product-modal-complements {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.product-modal-complement-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-bg-alt);
+  margin-bottom: 0.6rem;
+}
+
+.product-modal-complement-group .builder-option {
+  margin-bottom: 0.5rem;
+}
+
+.product-modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(89, 21, 92, 0.1);
+  background: #ffffff;
+}
+
+.product-modal-qty {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.product-modal-add {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-modal-overlay,
+  .product-modal {
+    transition: none;
+  }
+}
+
+/* Carrinho */
+
 .cart-overlay {
   position: fixed;
   inset: 0;
