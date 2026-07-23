@@ -814,7 +814,7 @@
           </div>
           <div class="about-fact">
             <span class="about-fact-title">Horário</span>
-            <span class="about-fact-desc">Aberto até tarde em dias de pico</span>
+            <span class="about-fact-desc">Todos os dias, das 11h à 3h da madrugada</span>
           </div>
           <div class="about-fact">
             <span class="about-fact-title">Avaliação</span>
@@ -875,7 +875,7 @@
           <li><a href="https://www.instagram.com/acaikidelicia.sabor/" target="_blank" rel="noopener">Instagram</a></li>
           <li><a href="https://share.google/HC0OF8GgoI82PgGcq" target="_blank" rel="noopener">Avaliações no Google</a></li>
           <li>Perus, São Paulo/SP</li>
-          <li>Aberto até tarde em dias de pico</li>
+          <li>Todos os dias, das 11h à 3h da madrugada</li>
         </ul>
       </div>
     </div>
@@ -884,6 +884,34 @@
       <p>© 2026 Açaí Ki Delícia. Todos os direitos reservados.</p>
     </div>
   </footer>
+
+  <div class="product-modal-overlay" id="productModalOverlay"></div>
+  <div class="product-modal" id="productModal" role="dialog" aria-modal="true" aria-label="Detalhes do produto">
+    <button class="product-modal-close" id="productModalClose" aria-label="Fechar">×</button>
+
+    <div class="product-modal-media" id="productModalMedia">
+      <img id="productModalImage" src="" alt="" class="product-modal-image">
+    </div>
+
+    <div class="product-modal-body">
+      <h3 class="product-modal-title" id="productModalTitle"></h3>
+      <p class="product-modal-desc" id="productModalDesc"></p>
+      <div class="product-modal-base-price" id="productModalBasePrice"></div>
+
+      <div class="product-modal-complements" id="productModalComplements"></div>
+    </div>
+
+    <div class="product-modal-footer">
+      <div class="product-modal-qty">
+        <button class="cart-qty-btn" id="productModalQtyMinus" aria-label="Diminuir quantidade">−</button>
+        <span id="productModalQtyValue">1</span>
+        <button class="cart-qty-btn" id="productModalQtyPlus" aria-label="Aumentar quantidade">+</button>
+      </div>
+      <button class="btn-cta product-modal-add" id="productModalAdd">
+        🛒 Adicionar — <span id="productModalTotal">R$0,00</span>
+      </button>
+    </div>
+  </div>
 
   <div class="cart-overlay" id="cartOverlay"></div>
   <aside class="cart-drawer" id="cartDrawer" aria-label="Carrinho de compras">
