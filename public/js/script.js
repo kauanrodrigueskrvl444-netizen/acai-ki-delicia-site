@@ -228,11 +228,24 @@ document.addEventListener('click', (event) => {
 });
 
 // ---- Finalizar pedido: registra no painel e abre o WhatsApp ----
-// Sem override explicito, fala com o painel no mesmo host que serviu esta pagina.
-// Aberta em localhost -> localhost:3000. Aberta pelo IP da rede (demo no
-// celular) -> mesmo IP na 3000, sem precisar configurar nada.
-const ADMIN_API =
-  window.__ADMIN_API__ || `${location.protocol}//${location.hostname}:3000`;
+// Endereco do painel, em ordem de prioridade:
+//   1. window.__ADMIN_API__ (js/config.js) — obrigatorio em producao, onde o
+//      site e o painel ficam em dominios diferentes;
+//   2. mesmo host na porta 3000 — cobre localhost e o IP da rede local, que e
+//      como a demo roda na maquina e no celular;
+//   3. null — publicado sem configurar. Melhor cair no WhatsApp do que tentar
+//      um endereco inventado e deixar o cliente sem resposta.
+function resolveAdminApi() {
+  if (window.__ADMIN_API__) return String(window.__ADMIN_API__).replace(/\/+$/, '');
+  const host = location.hostname;
+  const ehLocal =
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host);
+  return ehLocal ? `${location.protocol}//${host}:3000` : null;
+}
+
+const ADMIN_API = resolveAdminApi();
 
 const cartFulfillment = document.getElementById('cartFulfillment');
 const cartAddressBox = document.getElementById('cartAddress');
@@ -274,9 +287,10 @@ cartCheckoutBtn?.addEventListener('click', async () => {
     if (!value('cartNeighborhood')) return showCartError('Informe o bairro.');
   }
 
-  // Sem productId não dá pra revalidar no servidor (produto fora do painel):
-  // nesse caso mantém o comportamento antigo, só WhatsApp.
-  if (cart.some((item) => !item.productId)) {
+  // Sem productId não dá pra revalidar no servidor (produto fora do painel),
+  // e sem endereço do painel não dá pra registrar o pedido: nos dois casos
+  // mantém o comportamento antigo, só WhatsApp.
+  if (!ADMIN_API || cart.some((item) => !item.productId)) {
     window.open(whatsappFallback(), '_blank', 'noopener');
     return;
   }
