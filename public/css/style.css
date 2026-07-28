@@ -2064,3 +2064,142 @@ img {
     height: 70px;
   }
 }
+
+/* Config da loja (aberto/fechado, info operacional) — injetadas via
+   store-config.js, ficam ocultas ([hidden]) até terem conteúdo real. */
+.store-closed-banner {
+  background: var(--color-cta);
+  color: var(--color-bg);
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+}
+
+.store-info-strip {
+  background: var(--color-bg-alt);
+  color: var(--color-text-light);
+  text-align: center;
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+}
+
+/* ---- Dados do cliente no carrinho (pedido vai direto pro painel) ---- */
+.cart-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(89, 21, 92, 0.1);
+}
+
+.cart-form.is-hidden {
+  display: none;
+}
+
+.cart-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.cart-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-bg-alt);
+}
+
+.cart-optional {
+  font-weight: 400;
+  opacity: 0.6;
+}
+
+.cart-field input,
+.cart-field select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(89, 21, 92, 0.2);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--color-bg);
+  background: #fff;
+}
+
+.cart-field input:focus,
+.cart-field select:focus {
+  outline: 2px solid var(--color-cta);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.cart-field-row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.cart-address.is-hidden {
+  display: none;
+}
+
+.cart-error {
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+  font-size: 0.82rem;
+}
+
+.cart-error[hidden] {
+  display: none;
+}
+
+/* O rodapé (Total + CTA) fica sempre visível; quem rola é o corpo do carrinho. */
+.cart-drawer-footer {
+  flex-shrink: 0;
+}
+
+/* ---- Ícones (SVG inline, substituem os emojis) ---- */
+.icon {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+  vertical-align: -0.15em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-solid {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* alinhamento onde o ícone acompanha texto */
+.product-card-btn,
+.menu-filter,
+.menu-category-title,
+.product-card-badge,
+.about-fact-desc,
+.social-proof-value,
+.product-modal-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.menu-category-title,
+.about-fact-desc {
+  justify-content: flex-start;
+}
+
+.info-strip-sep {
+  margin: 0 0.75rem;
+  opacity: 0.5;
+}
