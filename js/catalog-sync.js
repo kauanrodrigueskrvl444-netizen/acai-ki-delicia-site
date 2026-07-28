@@ -1,0 +1,217 @@
+// Liga o cardápio da landing page ao painel admin.
+//
+// A LP continua sendo a LP: o HTML, o layout e as animações são os mesmos.
+// Este arquivo só substitui os DADOS estáticos pelos do Supabase — preço,
+// disponibilidade e adicionais passam a ser controlados pelo painel.
+//
+// O casamento entre o card da página e o produto do banco é feito pelo NOME
+// (o importador leu os nomes deste mesmo HTML, então batem por construção).
+// Se um produto não for encontrado, o card fica exatamente como está no HTML:
+// a página nunca quebra por causa do banco.
+(function () {
+  const SUPABASE_URL = 'https://lungknnnbddzgjvemdlp.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_2sr3hUBpek8LqSOBOwLMkA_TsIheip3';
+
+  const norm = (s) =>
+    (s || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]/g, '');
+
+  const formatPrice = (v) =>
+    Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+  // catálogo exposto pro script.js (modal e carrinho consomem daqui)
+  window.__CATALOG__ = { byName: new Map(), ready: false };
+
+  function applyPrice(el, price) {
+    // menu-item: <span class="menu-item-price"><s>..</s><strong>R$30,00</strong></span>
+    const strong = el.querySelector('.menu-item-price strong');
+    if (strong) {
+      strong.textContent = formatPrice(price);
+      return;
+    }
+    // product-card: <span class="product-card-price"><s>..</s>R$29,99</span>
+    const wrap = el.querySelector('.product-card-price');
+    if (!wrap) return;
+    const last = wrap.lastChild;
+    if (last && last.nodeType === Node.TEXT_NODE) last.textContent = formatPrice(price);
+  }
+
+  function applyImage(el, imageUrl) {
+    // Sem foto cadastrada no painel: mantém a imagem original do HTML.
+    if (!imageUrl) return;
+    const img = el.querySelector('.product-card-image, .menu-item-thumb');
+    if (!img) return;
+
+    const local = img.getAttribute('src');
+    if (!local || img.src === imageUrl) return;
+
+    // Se a foto do painel não carregar (URL quebrada, storage fora do ar),
+    // volta pra imagem local em vez de deixar o card no placeholder. O
+    // handler de placeholder do script.js roda no mesmo evento de erro, então
+    // a limpeza espera o load da imagem local pra não depender da ordem.
+    img.addEventListener(
+      'error',
+      () => {
+        img.addEventListener(
+          'load',
+          () => {
+            img.closest('.product-card-media')?.classList.remove('is-placeholder');
+            img.style.removeProperty('display');
+          },
+          { once: true },
+        );
+        img.src = local;
+      },
+      { once: true },
+    );
+
+    img.src = imageUrl;
+  }
+
+  function syncCard(el, product) {
+    el.dataset.productId = product.id;
+    el.dataset.price = product.base_price;
+    el.dataset.hasComplements = product.groups.length > 0 ? '1' : '0';
+
+    applyPrice(el, product.base_price);
+    applyImage(el, product.image_url);
+
+    // Produto desativado no painel some do site (mesma regra do cardápio novo).
+    if (!product.is_active) el.hidden = true;
+  }
+
+  async function loadCatalog() {
+    let products;
+    let categories;
+    try {
+      const [productsRes, categoriesRes] = await Promise.all([
+        fetch(
+          `${SUPABASE_URL}/rest/v1/products` +
+            `?select=id,name,base_price,image_url,is_active,product_complement_links(complement_groups(id,name,is_required,min_select,max_select,complement_items(id,name,price_delta,is_active)))` +
+            `&is_active=eq.true`,
+          { headers: { apikey: SUPABASE_ANON_KEY } },
+        ),
+        // RLS pública só devolve categoria ativa — "não veio" já significa desativada.
+        fetch(`${SUPABASE_URL}/rest/v1/product_categories?select=name`, {
+          headers: { apikey: SUPABASE_ANON_KEY },
+        }),
+      ]);
+      if (!productsRes.ok || !categoriesRes.ok) return;
+      products = await productsRes.json();
+      categories = await categoriesRes.json();
+    } catch {
+      return; // sem rede: a LP segue com os preços do HTML
+    }
+
+    const activeCategoryNames = new Set(categories.map((c) => norm(c.name)));
+
+    for (const p of products) {
+      const groups = (p.product_complement_links || [])
+        .flatMap((l) => (Array.isArray(l.complement_groups) ? l.complement_groups : [l.complement_groups]))
+        .filter(Boolean)
+        .map((g) => ({
+          id: g.id,
+          name: g.name,
+          isRequired: g.is_required,
+          minSelect: g.min_select,
+          maxSelect: g.max_select,
+          items: (g.complement_items || [])
+            .filter((i) => i.is_active)
+            .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
+            .map((i) => ({ id: i.id, name: i.name, price: Number(i.price_delta) })),
+        }))
+        .filter((g) => g.items.length > 0);
+
+      window.__CATALOG__.byName.set(norm(p.name), {
+        id: p.id,
+        name: p.name,
+        base_price: Number(p.base_price),
+        image_url: p.image_url,
+        is_active: p.is_active,
+        groups,
+      });
+    }
+
+    // A RLS só entrega produto ativo pro público, então "não veio na consulta"
+    // e "foi desativado no painel" chegam iguais aqui. Como o importador
+    // cadastrou todos os itens desta página, tratar ausência como indisponível
+    // é o que faz o painel realmente controlar a vitrine. Só vale quando a
+    // consulta respondeu — sem rede a função retorna antes e nada é tocado.
+    document.querySelectorAll('.product-card, .menu-item').forEach((el) => {
+      const nameEl = el.querySelector('.product-card-title, .menu-item-name');
+      const product = window.__CATALOG__.byName.get(norm(nameEl && nameEl.textContent));
+      if (product) {
+        syncCard(el, product);
+      } else {
+        el.hidden = true;
+      }
+    });
+
+    // Categoria desativada no painel esconde a seção inteira. "Mais Vendidos"
+    // é uma vitrine curada com produtos de várias categorias, não uma
+    // categoria do banco — fica de fora dessa regra, só some pela checagem
+    // de itens visíveis logo abaixo.
+    document.querySelectorAll('.menu-category').forEach((cat) => {
+      if (cat.dataset.category === 'mais-vendidos') return;
+      const titleEl = cat.querySelector('.menu-category-title');
+      const name = norm(titleEl && titleEl.textContent);
+      if (name && !activeCategoryNames.has(name)) cat.hidden = true;
+    });
+
+    // Categoria que ficou sem nenhum item visível some junto, pra não deixar
+    // um título de seção órfão no cardápio.
+    document.querySelectorAll('.menu-category').forEach((cat) => {
+      if (cat.hidden) return;
+      const visible = [...cat.querySelectorAll('.product-card, .menu-item')].some((el) => !el.hidden);
+      cat.hidden = !visible;
+    });
+
+    // "Monte seu Açaí": liga cada tamanho de base ao produto do painel e
+    // resolve os adicionais marcados pelo nome, pra o pedido do builder
+    // seguir o mesmo caminho seguro do resto do site.
+    const aplicaPreco = (input, valor) => {
+      input.dataset.price = valor;
+      const label = input.closest('.builder-option')?.querySelector('.builder-option-price');
+      if (label) label.textContent = formatPrice(valor);
+    };
+
+    document.querySelectorAll('input[name="builder-base-size"]').forEach((radio) => {
+      const product = window.__CATALOG__.byName.get(norm(radio.dataset.name));
+      if (!product) return;
+      radio.dataset.productId = product.id;
+      aplicaPreco(radio, product.base_price);
+    });
+
+    const acharAdicional = (nome) => {
+      for (const product of window.__CATALOG__.byName.values()) {
+        for (const group of product.groups) {
+          const hit = group.items.find((i) => norm(i.name) === norm(nome));
+          if (hit) return hit;
+        }
+      }
+      return null;
+    };
+
+    window.__CATALOG__.complementIdByName = (nome) => acharAdicional(nome)?.id ?? null;
+
+    // Preço dos adicionais do builder também sai do painel.
+    document
+      .querySelectorAll('input[data-builder-item]:not([name="builder-base-size"])')
+      .forEach((input) => {
+        const item = acharAdicional(input.dataset.name);
+        if (item) aplicaPreco(input, item.price);
+      });
+
+    window.__CATALOG__.ready = true;
+    document.dispatchEvent(new CustomEvent('catalog:ready'));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadCatalog);
+  } else {
+    loadCatalog();
+  }
+})();
