@@ -8,4 +8,4 @@
 //
 // Publicado, o site e o painel ficam em domínios diferentes, então esse
 // endereço não tem como ser adivinhado: precisa ser preenchido aqui.
-window.__ADMIN_API__ = 'https://acai-ki-delicia-admin.vercel.app';
+window.__ADMIN_API__ = '';
