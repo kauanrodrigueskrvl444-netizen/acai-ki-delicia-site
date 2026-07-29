@@ -2163,8 +2163,14 @@ img {
   border-color: transparent;
 }
 
+/* Empilhado, não lado a lado: o drawer tem no máximo 400px (ver
+   .cart-drawer), então "Bairro" nunca tem largura de sobra em nenhum
+   tamanho de tela — dividir com "Número" cortava nomes de zona longos
+   ("Recanto dos Humildes — R$ 8,00"), escondendo a taxa bem no campo onde
+   o cliente decide o pedido. */
 .cart-field-row {
   display: flex;
+  flex-direction: column;
   gap: 0.6rem;
 }
 
