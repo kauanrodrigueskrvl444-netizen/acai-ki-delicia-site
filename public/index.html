@@ -22,7 +22,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=8b1d4f2">
+  <link rel="stylesheet" href="css/style.css?v=c3f7a91">
 </head>
 <body>
 
@@ -975,17 +975,26 @@
       </div>
     </div>
     <div class="cart-drawer-footer" id="cartFooter">
+      <div class="cart-total-row cart-total-row-minor" id="cartSubtotalRow" hidden>
+        <span>Subtotal</span>
+        <span id="cartSubtotal">R$0,00</span>
+      </div>
+      <div class="cart-total-row cart-total-row-minor" id="cartFeeRow" hidden>
+        <span>Taxa de entrega</span>
+        <span id="cartFee">R$0,00</span>
+      </div>
       <div class="cart-total-row">
         <span>Total</span>
         <strong id="cartTotal">R$0,00</strong>
       </div>
+      <p class="cart-notice" id="cartMinimum" hidden></p>
       <button class="btn-cta cart-checkout" id="cartCheckout">Finalizar pedido no WhatsApp</button>
     </div>
   </aside>
 
-  <script src="js/config.js?v=8b1d4f2"></script>
-  <script src="js/store-config.js?v=8b1d4f2"></script>
-  <script src="js/catalog-sync.js?v=8b1d4f2"></script>
-  <script src="js/script.js?v=8b1d4f2"></script>
+  <script src="js/config.js?v=c3f7a91"></script>
+  <script src="js/store-config.js?v=c3f7a91"></script>
+  <script src="js/catalog-sync.js?v=c3f7a91"></script>
+  <script src="js/script.js?v=c3f7a91"></script>
 </body>
 </html>

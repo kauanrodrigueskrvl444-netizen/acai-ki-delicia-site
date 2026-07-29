@@ -103,8 +103,48 @@ function formatPrice(value) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-function cartTotal() {
+function cartSubtotal() {
   return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+}
+
+/* Zona escolhida no select de bairro, quando existem zonas cadastradas.
+   store-config.js troca o input por um select cujo value é o id da zona. */
+function selectedZone() {
+  const zones = window.__DELIVERY_ZONES__;
+  if (!Array.isArray(zones) || zones.length === 0) return null;
+  const chosen = document.getElementById('cartNeighborhood')?.value || '';
+  return zones.find((zone) => zone.id === chosen) || null;
+}
+
+function usesZones() {
+  return Array.isArray(window.__DELIVERY_ZONES__) && window.__DELIVERY_ZONES__.length > 0;
+}
+
+/* Busca o elemento na hora em vez de usar a const `cartFulfillment`, que é
+   declarada mais abaixo neste arquivo: renderCart() roda no carregamento e
+   pegaria a const ainda na zona morta do let/const. */
+function isDeliverySelected() {
+  const select = document.getElementById('cartFulfillment');
+  return !select || select.value === 'entrega';
+}
+
+/* Só previsão pra o cliente ver: o valor cobrado é o que o servidor recalcula
+   em createPublicOrder a partir do banco. */
+function cartDeliveryFee() {
+  if (!isDeliverySelected()) return 0;
+  if (usesZones()) return Number(selectedZone()?.fee ?? 0);
+  return Number(window.__DELIVERY_FEE__ ?? 0);
+}
+
+function cartTotal() {
+  return cartSubtotal() + cartDeliveryFee();
+}
+
+function minimumShortfall() {
+  const minOrder = Number(window.__MIN_ORDER__ ?? 0);
+  if (!isDeliverySelected() || minOrder <= 0) return 0;
+  const missing = minOrder - cartSubtotal();
+  return missing > 0 ? missing : 0;
 }
 
 function cartCount() {
@@ -190,8 +230,55 @@ function renderCart() {
     cartItemsEl.appendChild(row);
   });
 
-  if (cartTotalEl) cartTotalEl.textContent = formatPrice(cartTotal());
+  renderCartTotals();
 }
+
+/* Subtotal e taxa só aparecem quando há taxa em jogo — pra retirada, ou entrega
+   sem taxa nenhuma, o Total sozinho já diz tudo e três linhas iguais só
+   poluem. */
+function renderCartTotals() {
+  const subtotal = cartSubtotal();
+  const fee = cartDeliveryFee();
+  const showBreakdown = isDeliverySelected() && (fee > 0 || (usesZones() && !selectedZone()));
+
+  const subtotalRow = document.getElementById('cartSubtotalRow');
+  const feeRow = document.getElementById('cartFeeRow');
+  const subtotalEl = document.getElementById('cartSubtotal');
+  const feeEl = document.getElementById('cartFee');
+
+  if (subtotalRow) subtotalRow.hidden = !showBreakdown;
+  if (feeRow) feeRow.hidden = !showBreakdown;
+  if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
+  if (feeEl) {
+    feeEl.textContent =
+      usesZones() && !selectedZone() ? 'escolha o bairro' : formatPrice(fee);
+  }
+
+  if (cartTotalEl) cartTotalEl.textContent = formatPrice(cartTotal());
+
+  // Pedido mínimo: aviso com o quanto falta, não erro. A trava real é no
+  // servidor; aqui só evita o cliente tentar e levar recusa.
+  const noticeEl = document.getElementById('cartMinimum');
+  const shortfall = minimumShortfall();
+  if (noticeEl) {
+    if (shortfall > 0) {
+      noticeEl.textContent = `Pedido mínimo para entrega é de ${formatPrice(
+        Number(window.__MIN_ORDER__ ?? 0),
+      )}. Faltam ${formatPrice(shortfall)} — ou escolha retirada no local.`;
+      noticeEl.hidden = false;
+    } else {
+      noticeEl.hidden = true;
+    }
+  }
+
+  if (cartCheckoutBtn) {
+    cartCheckoutBtn.disabled = cart.length > 0 && shortfall > 0;
+  }
+}
+
+// store-config.js dispara isso quando as zonas/config chegam do Supabase, e o
+// select de bairro quando o cliente troca de bairro.
+document.addEventListener('cart:refresh', renderCartTotals);
 
 function openCart() {
   cartDrawer?.classList.add('is-open');
@@ -254,6 +341,8 @@ const cartErrorEl = document.getElementById('cartError');
 function toggleAddressFields() {
   const isDelivery = !cartFulfillment || cartFulfillment.value === 'entrega';
   cartAddressBox?.classList.toggle('is-hidden', !isDelivery);
+  // Trocar entrega/retirada muda taxa e mínimo: os dois só valem pra entrega.
+  renderCartTotals();
 }
 cartFulfillment?.addEventListener('change', toggleAddressFields);
 toggleAddressFields();
@@ -281,10 +370,24 @@ cartCheckoutBtn?.addEventListener('click', async () => {
 
   if (!value('cartName')) return showCartError('Informe seu nome.');
   if (value('cartPhone').replace(/\D/g, '').length < 8) return showCartError('Informe um WhatsApp válido.');
+  const zone = selectedZone();
   if (fulfillmentType === 'entrega') {
     if (!value('cartStreet')) return showCartError('Informe o endereço da entrega.');
     if (!value('cartNumber')) return showCartError('Informe o número.');
-    if (!value('cartNeighborhood')) return showCartError('Informe o bairro.');
+    if (usesZones()) {
+      if (!zone) return showCartError('Escolha o bairro da entrega.');
+    } else if (!value('cartNeighborhood')) {
+      return showCartError('Informe o bairro.');
+    }
+
+    const shortfall = minimumShortfall();
+    if (shortfall > 0) {
+      return showCartError(
+        `Pedido mínimo para entrega é de ${formatPrice(
+          Number(window.__MIN_ORDER__ ?? 0),
+        )}. Faltam ${formatPrice(shortfall)}.`,
+      );
+    }
   }
 
   // Sem productId não dá pra revalidar no servidor (produto fora do painel),
@@ -309,7 +412,10 @@ cartCheckoutBtn?.addEventListener('click', async () => {
         fulfillmentType,
         address: value('cartStreet'),
         addressNumber: value('cartNumber'),
-        neighborhood: value('cartNeighborhood'),
+        // Com zonas, o select devolve o id e o nome do bairro vem da zona.
+        // Sem zonas, o campo continua sendo texto livre.
+        neighborhood: zone ? zone.name : value('cartNeighborhood'),
+        deliveryZoneId: zone ? zone.id : undefined,
         referencePoint: value('cartReference'),
         paymentMethod: document.getElementById('cartPayment')?.value || 'pix',
         needsChange: false,
@@ -337,8 +443,11 @@ cartCheckoutBtn?.addEventListener('click', async () => {
     // Painel fora do ar: não deixa o cliente na mão, cai no fluxo antigo.
     window.open(whatsappFallback(), '_blank', 'noopener');
   } finally {
-    cartCheckoutBtn.disabled = false;
     cartCheckoutBtn.textContent = original;
+    // Recomputa o disabled a partir do estado real em vez de reabilitar às
+    // cegas: se o carrinho ainda estiver abaixo do mínimo, o botão continua
+    // travado.
+    renderCartTotals();
   }
 });
 
