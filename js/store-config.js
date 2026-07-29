@@ -64,16 +64,30 @@
     banner.hidden = false;
   }
 
-  function updateInfoStrip(settings) {
+  function updateInfoStrip(settings, zones) {
     const strip = document.getElementById('storeInfoStrip');
     if (!strip) return;
 
     const parts = [];
     if (settings.hours) parts.push(`${ICON.clock} ${esc(settings.hours)}`);
     if (settings.avg_time) parts.push(`${ICON.scooter} Entrega em ${esc(settings.avg_time)}`);
-    if (settings.delivery_fee !== null && settings.delivery_fee !== undefined) {
+
+    // Com zonas cadastradas não existe "a" taxa — anunciar uma só seria
+    // prometer errado pra metade dos bairros. Mostra a faixa; o valor exato
+    // aparece no carrinho quando o cliente escolhe o bairro.
+    if (zones.length > 0) {
+      const fees = zones.map((zone) => Number(zone.fee));
+      const min = Math.min(...fees);
+      const max = Math.max(...fees);
+      parts.push(
+        min === max
+          ? `${ICON.truck} Taxa de entrega: ${formatPrice(min)}`
+          : `${ICON.truck} Taxa de entrega: ${formatPrice(min)} a ${formatPrice(max)}`,
+      );
+    } else if (settings.delivery_fee !== null && settings.delivery_fee !== undefined) {
       parts.push(`${ICON.truck} Taxa de entrega: ${formatPrice(settings.delivery_fee)}`);
     }
+
     if (settings.min_order !== null && settings.min_order !== undefined) {
       parts.push(`${ICON.cart} Pedido mínimo: ${formatPrice(settings.min_order)}`);
     }
@@ -86,16 +100,78 @@
     strip.hidden = false;
   }
 
-  async function loadStoreConfig() {
+  /* Bairro deixa de ser texto livre e passa a ser escolha na lista de zonas.
+     Isso é o que torna a taxa determinística: o valor vem do id escolhido, não
+     de comparar a grafia que o cliente digitou.
+
+     Troca o <input> do HTML por um <select> só quando as zonas carregam. Se a
+     busca falhar, o input continua lá e o checkout volta ao texto livre com a
+     taxa única — mesma lógica de fallback do resto deste arquivo. */
+  function buildNeighborhoodSelect(zones) {
+    const input = document.getElementById('cartNeighborhood');
+    if (!input || zones.length === 0) return;
+    if (input.tagName === 'SELECT') return;
+
+    const select = document.createElement('select');
+    select.id = 'cartNeighborhood';
+    select.className = input.className;
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Escolha o bairro';
+    select.appendChild(placeholder);
+
+    zones.forEach((zone) => {
+      const option = document.createElement('option');
+      option.value = zone.id;
+      const fee = Number(zone.fee);
+      option.textContent = `${zone.name} — ${fee > 0 ? formatPrice(fee) : 'grátis'}`;
+      select.appendChild(option);
+    });
+
+    input.replaceWith(select);
+    // O carrinho recalcula a taxa a cada troca de bairro.
+    select.addEventListener('change', () => {
+      document.dispatchEvent(new CustomEvent('cart:refresh'));
+    });
+  }
+
+  async function loadDeliveryZones() {
     try {
       const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/store_settings?id=eq.${SETTINGS_ID}&select=*`,
+        `${SUPABASE_URL}/rest/v1/delivery_zones?is_active=eq.true&select=id,name,fee&order=sort_order.asc,name.asc`,
         { headers: { apikey: SUPABASE_ANON_KEY } },
       );
+      if (!response.ok) return [];
+      const zones = await response.json();
+      return Array.isArray(zones) ? zones : [];
+    } catch {
+      return [];
+    }
+  }
+
+  async function loadStoreConfig() {
+    try {
+      const [response, zones] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/store_settings?id=eq.${SETTINGS_ID}&select=*`, {
+          headers: { apikey: SUPABASE_ANON_KEY },
+        }),
+        loadDeliveryZones(),
+      ]);
+
+      // As zonas e o mínimo ficam no window porque é o script.js que calcula o
+      // total do carrinho — mas os dois valores são só previsão pra o cliente
+      // ver. Quem cobra é o servidor, que recalcula tudo contra o banco.
+      window.__DELIVERY_ZONES__ = zones;
+      buildNeighborhoodSelect(zones);
+
       if (!response.ok) return;
 
       const [settings] = await response.json();
       if (!settings) return;
+
+      window.__MIN_ORDER__ = Number(settings.min_order ?? 0);
+      window.__DELIVERY_FEE__ = Number(settings.delivery_fee ?? 0);
 
       if (settings.whatsapp) updateWhatsappLinks(settings.whatsapp);
       if (settings.instagram_url) updateInstagramLinks(settings.instagram_url);
@@ -105,9 +181,14 @@
       updateFooterText('footerAddress', settings.address);
       updateFooterText('footerHours', settings.hours);
       updateClosedBanner(settings.is_open, settings.closed_message);
-      updateInfoStrip(settings);
+      updateInfoStrip(settings, zones);
     } catch {
       // Sem conexão ou config indisponível: mantém os valores fixos do HTML.
+    } finally {
+      // Redesenha o carrinho com a taxa e o mínimo que acabaram de chegar.
+      // No finally porque o carrinho tem que voltar ao estado coerente mesmo
+      // se a config falhar no meio.
+      document.dispatchEvent(new CustomEvent('cart:refresh'));
     }
   }
 

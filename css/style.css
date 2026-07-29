@@ -1657,6 +1657,34 @@ img {
   font-size: 1.05rem;
 }
 
+/* Subtotal e taxa: linhas de apoio acima do total, então mais discretas e
+   sem o respiro cheio — o Total continua sendo o número que salta. */
+.cart-total-row-minor {
+  margin-bottom: 0.4rem;
+  color: rgba(58, 13, 63, 0.55);
+  font-size: 0.9rem;
+}
+
+.cart-total-row-minor[hidden] {
+  display: none;
+}
+
+/* Aviso de pedido mínimo. Não é erro — o cliente não fez nada errado, só
+   ainda não atingiu o valor —, então tom neutro e não o vermelho do
+   .cart-error. */
+.cart-notice {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 10px;
+  background: rgba(58, 13, 63, 0.08);
+  color: rgba(58, 13, 63, 0.75);
+  font-size: 0.82rem;
+}
+
+.cart-notice[hidden] {
+  display: none;
+}
+
 .cart-checkout {
   width: 100%;
   text-align: center;
