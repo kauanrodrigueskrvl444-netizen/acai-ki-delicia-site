@@ -1,5 +1,7 @@
 {
+  "framework": null,
   "outputDirectory": "public",
+  "buildCommand": null,
   "headers": [
     {
       "source": "/(.*)",
