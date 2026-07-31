@@ -51,6 +51,25 @@ document.querySelectorAll('img[data-image-fallback]').forEach((img) => {
   showPlaceholderIfBroken();
 });
 
+const revealTargets = document.querySelectorAll('[data-reveal]');
+if (revealTargets.length > 0) {
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -80px 0px' },
+    );
+    revealTargets.forEach((target) => revealObserver.observe(target));
+  } else {
+    revealTargets.forEach((target) => target.classList.add('is-revealed'));
+  }
+}
+
 const menuFilters = document.getElementById('menuFilters');
 if (menuFilters) {
   const categories = document.querySelectorAll('.menu-category');
