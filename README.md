@@ -1,6 +1,6 @@
-# Açaí Ki Delícia — Landing page
+# Açaí Kidelicia — Landing page
 
-Loja pública da Açaí Ki Delícia (açaiteria em Perus, São Paulo/SP). HTML/CSS/JS
+Loja pública da Açaí Kidelicia (açaiteria em Perus, São Paulo/SP). HTML/CSS/JS
 estático, sem build step. Lê cardápio, preço e disponibilidade direto do
 Supabase do painel administrativo ([`acai-ki-delicia-admin`](https://github.com/kauanrodrigueskrvl444-netizen/acai-ki-delicia-admin))
 e cria pedido de verdade via `POST /api/pedido` nesse mesmo painel.

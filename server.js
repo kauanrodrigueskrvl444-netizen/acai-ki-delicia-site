@@ -43,7 +43,7 @@ app.use(
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.listen(PORT, () => {
-  console.log(`Açaí Ki Delícia rodando em http://localhost:${PORT}`);
+  console.log(`Açaí Kidelicia rodando em http://localhost:${PORT}`);
   for (const ip of lanAddresses()) {
     console.log(`  na rede local:  http://${ip}:${PORT}`);
   }
