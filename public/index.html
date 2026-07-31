@@ -140,6 +140,7 @@
         <div class="hero-image-glow" aria-hidden="true"></div>
         <div class="hero-image-frame">
           <video
+            id="heroVideo"
             src="assets/acai-hero.mp4"
             class="hero-image"
             data-video-fallback
@@ -157,34 +158,41 @@
     </div>
   </section>
 
-  <section class="launch-feature" id="lancamento" data-reveal>
-    <div class="launch-feature-decor" aria-hidden="true"></div>
-    <div class="launch-feature-inner">
-      <span class="launch-feature-eyebrow">Novidade</span>
-      <h2 class="launch-feature-title">Conheça nosso lançamento</h2>
-
-      <div class="launch-feature-media">
-        <div class="launch-feature-glow" aria-hidden="true"></div>
-        <div class="launch-feature-frame">
-          <video
-            src="assets/lancamento-1.mp4"
-            class="launch-feature-video"
-            data-video-fallback
-            autoplay
-            loop
-            muted
-            playsinline
-            aria-label="Lançamento Açaí com Pistache - Açaí Kidelicia"
-          ></video>
-          <div class="launch-feature-placeholder">
-            <span>Vídeo do lançamento entra aqui</span>
-          </div>
-        </div>
+  <section class="launches" id="lancamento" data-reveal>
+    <div class="launches-inner">
+      <div class="launches-header">
+        <span class="launches-eyebrow">Novidade</span>
+        <h2 class="launches-title">Nossos lançamentos</h2>
+        <p class="launches-subtitle">Os sabores mais novos da casa, direto no seu carrinho.</p>
       </div>
 
-      <h3 class="launch-feature-name">Açaí com Pistache <span class="launch-feature-tag">NOVO</span></h3>
-      <p class="launch-feature-desc">Acompanha Ferrero Rocher, Nutella e banana.</p>
-      <a href="https://wa.me/5511993996423?text=Oi!%20Quero%20pedir%20o%20A%C3%A7a%C3%AD%20com%20Pistache" target="_blank" rel="noopener" class="btn-cta btn-cta-large" data-whatsapp-link>Pedir agora</a>
+      <!-- Card fixo de fallback: some assim que o painel devolve pelo menos um
+           lançamento cadastrado (js/launches.js). Sem rede ou sem cadastro
+           ainda, a seção continua funcionando com este card. -->
+      <div class="launches-grid" id="launchesGrid">
+        <article class="launch-card">
+          <div class="launch-card-media">
+            <video
+              src="assets/lancamento-1.mp4"
+              class="launch-media"
+              data-video-fallback
+              autoplay
+              loop
+              muted
+              playsinline
+              aria-label="Lançamento Açaí com Pistache - Açaí Kidelicia"
+            ></video>
+            <div class="launch-card-placeholder">
+              <span>Vídeo do lançamento entra aqui</span>
+            </div>
+          </div>
+          <div class="launch-card-body">
+            <h3 class="launch-card-title">Açaí com Pistache <span class="launch-feature-tag">NOVO</span></h3>
+            <p class="launch-card-desc">Acompanha Ferrero Rocher, Nutella e banana.</p>
+            <a href="https://wa.me/5511993996423?text=Oi!%20Quero%20pedir%20o%20A%C3%A7a%C3%AD%20com%20Pistache" target="_blank" rel="noopener" class="btn-cta launch-card-cta" data-whatsapp-link>Pedir agora</a>
+          </div>
+        </article>
+      </div>
     </div>
   </section>
 
@@ -1039,6 +1047,7 @@
   <script src="js/config.js?v=f13c8b7"></script>
   <script src="js/store-config.js?v=f13c8b7"></script>
   <script src="js/catalog-sync.js?v=f13c8b7"></script>
+  <script src="js/launches.js?v=f13c8b7"></script>
   <script src="js/script.js?v=f13c8b7"></script>
 </body>
 </html>

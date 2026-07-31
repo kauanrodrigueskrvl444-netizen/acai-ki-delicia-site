@@ -934,6 +934,13 @@ img {
   color: rgba(253, 246, 240, 0.65);
 }
 
+.launch-card-cta {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
 .launch-card-empty {
   border-style: dashed;
   border-width: 2px;
