@@ -1,0 +1,25 @@
+name: Keep Supabase awake
+
+# O plano free do Supabase pausa o projeto depois de ~7 dias sem nenhuma
+# chamada à API. Esse ping diário conta como atividade e evita a pausa —
+# aconteceu de verdade em 31/07/2026 (ver clientes/Açaí Ki Delícia/briefing.md
+# no workspace do MazyOS) e derrubou site + painel + checkout até alguém
+# perceber e reativar manualmente no dashboard.
+#
+# A chave usada abaixo é a "anon" (publishable) do Supabase — a mesma que já
+# fica exposta publicamente no JS da própria LP (public/js/store-config.js).
+# Não é segredo, só lê uma linha de uma tabela pública do cardápio.
+
+on:
+  schedule:
+    - cron: "0 12 * * *" # todo dia, 12:00 UTC (09:00 em São Paulo)
+  workflow_dispatch: {} # permite rodar manualmente pra testar
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping no catálogo público do Supabase
+        run: |
+          curl -sf "https://lungknnnbddzgjvemdlp.supabase.co/rest/v1/product_categories?select=id&limit=1" \
+            -H "apikey: sb_publishable_2sr3hUBpek8LqSOBOwLMkA_TsIheip3"
