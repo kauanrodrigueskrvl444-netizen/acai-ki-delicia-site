@@ -28,6 +28,10 @@ app.use(
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         'img-src': ["'self'", 'data:', 'https://lungknnnbddzgjvemdlp.supabase.co'],
+        // Vídeo de lançamento e do hero, quando cadastrados pelo painel, ficam
+        // no mesmo bucket público do Supabase — sem isso, media-src cai no
+        // default-src ('self') e o navegador bloqueia o <video src>.
+        'media-src': ["'self'", 'https://lungknnnbddzgjvemdlp.supabase.co'],
         // adminOrigins: painel que recebe o pedido do carrinho (localhost +
         // IPs da rede local, pra demo pelo celular).
         'connect-src': [

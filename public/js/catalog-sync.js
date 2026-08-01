@@ -83,6 +83,103 @@
     if (!product.is_active) el.hidden = true;
   }
 
+  const CART_ICON_SVG =
+    '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h2.2l2.3 12.1a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.55L21 8H5.4"/></svg>';
+
+  function buildPromoCard(product) {
+    const article = document.createElement('article');
+    article.className = 'product-card';
+    article.dataset.price = product.base_price;
+    article.dataset.productId = product.id;
+    article.dataset.hasComplements = product.groups.length > 0 ? '1' : '0';
+
+    const media = document.createElement('div');
+    media.className = 'product-card-media';
+
+    if (product.promo_badge) {
+      const badge = document.createElement('span');
+      badge.className = 'product-card-badge';
+      badge.textContent = product.promo_badge;
+      media.appendChild(badge);
+    }
+
+    if (product.image_url) {
+      const img = document.createElement('img');
+      img.className = 'product-card-image';
+      img.src = product.image_url;
+      img.alt = product.name;
+      img.setAttribute('data-image-fallback', '');
+      media.appendChild(img);
+    }
+    const placeholderText = document.createElement('span');
+    placeholderText.className = 'product-card-placeholder-text';
+    placeholderText.textContent = 'Foto entra aqui';
+    media.appendChild(placeholderText);
+
+    const body = document.createElement('div');
+    body.className = 'product-card-body';
+
+    const title = document.createElement('h3');
+    title.className = 'product-card-title';
+    title.textContent = product.name;
+    body.appendChild(title);
+
+    if (product.description) {
+      const desc = document.createElement('p');
+      desc.className = 'product-card-desc';
+      desc.textContent = product.description;
+      body.appendChild(desc);
+    }
+
+    const footer = document.createElement('div');
+    footer.className = 'product-card-footer';
+
+    const priceEl = document.createElement('span');
+    priceEl.className = 'product-card-price';
+    if (product.compare_at_price && product.compare_at_price > product.base_price) {
+      const old = document.createElement('s');
+      old.className = 'product-card-price-old';
+      old.textContent = formatPrice(product.compare_at_price);
+      priceEl.appendChild(old);
+    }
+    priceEl.appendChild(document.createTextNode(formatPrice(product.base_price)));
+    footer.appendChild(priceEl);
+
+    const button = document.createElement('button');
+    button.className = 'btn-cta product-card-btn';
+    button.setAttribute('data-add-to-cart', '');
+    button.innerHTML = `${CART_ICON_SVG} Adicionar ao Carrinho`;
+    footer.appendChild(button);
+
+    body.appendChild(footer);
+    article.appendChild(media);
+    article.appendChild(body);
+    return article;
+  }
+
+  // Promoção é sempre um produto real (is_promo=true em `products`), não uma
+  // seção separada — o painel controla preço, foto, selo e o "de" riscado no
+  // mesmo cadastro do cardápio. Sem nenhum marcado, a seção some: mostrar os
+  // 3 cards fixos do HTML aqui seria anunciar desconto que já não existe.
+  function syncPromocoes() {
+    const grid = document.querySelector('#promocoes .product-cards');
+    const section = document.getElementById('promocoes');
+    if (!grid || !section) return;
+
+    const promoProducts = [...window.__CATALOG__.byName.values()]
+      .filter((p) => p.is_promo && p.is_active)
+      .sort((a, b) => a.promo_sort_order - b.promo_sort_order);
+
+    if (promoProducts.length === 0) {
+      section.hidden = true;
+      return;
+    }
+
+    section.hidden = false;
+    grid.innerHTML = '';
+    promoProducts.forEach((product) => grid.appendChild(buildPromoCard(product)));
+  }
+
   async function loadCatalog() {
     let products;
     let categories;
@@ -90,7 +187,7 @@
       const [productsRes, categoriesRes] = await Promise.all([
         fetch(
           `${SUPABASE_URL}/rest/v1/products` +
-            `?select=id,name,base_price,image_url,is_active,product_complement_links(complement_groups(id,name,is_required,min_select,max_select,complement_items(id,name,price_delta,is_active)))` +
+            `?select=id,name,description,base_price,image_url,is_active,is_promo,compare_at_price,promo_badge,promo_sort_order,product_complement_links(complement_groups(id,name,is_required,min_select,max_select,complement_items(id,name,price_delta,is_active)))` +
             `&is_active=eq.true`,
           { headers: { apikey: SUPABASE_ANON_KEY } },
         ),
@@ -128,9 +225,14 @@
       window.__CATALOG__.byName.set(norm(p.name), {
         id: p.id,
         name: p.name,
+        description: p.description,
         base_price: Number(p.base_price),
         image_url: p.image_url,
         is_active: p.is_active,
+        is_promo: p.is_promo,
+        compare_at_price: p.compare_at_price === null ? null : Number(p.compare_at_price),
+        promo_badge: p.promo_badge,
+        promo_sort_order: p.promo_sort_order,
         groups,
       });
     }
@@ -149,6 +251,8 @@
         el.hidden = true;
       }
     });
+
+    syncPromocoes();
 
     // Categoria desativada no painel esconde a seção inteira. "Mais Vendidos"
     // é uma vitrine curada com produtos de várias categorias, não uma
