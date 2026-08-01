@@ -973,6 +973,20 @@ img {
   }
 }
 
+/* Card principal: sempre o do meio no desktop (o do sort_order mais baixo —
+   ver public/js/launches.js). No mobile empilhado, ele vem primeiro (order),
+   já que "no meio" só faz sentido lado a lado. */
+.launch-card-featured {
+  order: -1;
+  box-shadow:
+    0 24px 48px -20px rgba(58, 13, 63, 0.55),
+    0 12px 24px -12px rgba(0, 0, 0, 0.4);
+}
+
+.launch-card-featured .launch-card-title {
+  font-size: 1.3rem;
+}
+
 @media (min-width: 640px) {
   .launches-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -981,11 +995,16 @@ img {
 
 @media (min-width: 960px) {
   .launches-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 0.8fr 1.3fr 0.8fr;
+    align-items: center;
   }
 
   .launches-title {
     font-size: 2.4rem;
+  }
+
+  .launch-card-featured {
+    order: 0;
   }
 }
 
