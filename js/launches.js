@@ -48,9 +48,9 @@
     return media;
   }
 
-  function buildCard(launch) {
+  function buildCard(launch, featured) {
     const card = document.createElement('article');
-    card.className = 'launch-card';
+    card.className = featured ? 'launch-card launch-card-featured' : 'launch-card';
     card.appendChild(buildMedia(launch));
 
     const body = document.createElement('div');
@@ -81,9 +81,9 @@
     return card;
   }
 
-  function buildEmptyCard() {
+  function buildEmptyCard(featured) {
     const card = document.createElement('div');
-    card.className = 'launch-card launch-card-empty';
+    card.className = featured ? 'launch-card launch-card-empty launch-card-featured' : 'launch-card launch-card-empty';
     const media = document.createElement('div');
     media.className = 'launch-card-media-empty';
     media.textContent = 'Em breve';
@@ -105,11 +105,16 @@
       const launches = await response.json();
       if (!Array.isArray(launches) || launches.length === 0) return;
 
+      // O cliente pediu o layout: principal maior no meio, os outros dois
+      // menores nas laterais. sort_order mais baixo = maior prioridade, então
+      // o primeiro da lista vira o card do meio; o 2º vai pra esquerda e o
+      // 3º pra direita.
+      const [main, left, right] = launches.slice(0, MAX_CARDS);
+
       grid.innerHTML = '';
-      launches.slice(0, MAX_CARDS).forEach((launch) => grid.appendChild(buildCard(launch)));
-      for (let i = launches.length; i < MAX_CARDS; i += 1) {
-        grid.appendChild(buildEmptyCard());
-      }
+      grid.appendChild(left ? buildCard(left, false) : buildEmptyCard(false));
+      grid.appendChild(main ? buildCard(main, true) : buildEmptyCard(true));
+      grid.appendChild(right ? buildCard(right, false) : buildEmptyCard(false));
     } catch {
       // Sem rede ou config indisponível: mantém o card fixo do HTML.
     }
