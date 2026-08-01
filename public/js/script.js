@@ -54,6 +54,14 @@ document.querySelectorAll('img[data-image-fallback]').forEach((img) => {
 const revealTargets = document.querySelectorAll('[data-reveal]');
 if (revealTargets.length > 0) {
   if ('IntersectionObserver' in window) {
+    // threshold é fração da ALTURA DO ALVO, não da tela — numa seção
+    // pequena (hero, avaliações) 0.15 é quase nada, mas o Cardápio passou a
+    // ter várias categorias e ficou com 5000px+ de altura: 15% disso são
+    // 700px+, mais que uma rolagem de tela inteira depois da seção já ter
+    // começado a entrar. threshold: 0 dispara assim que 1px aparece — o
+    // rootMargin negativo (relativo à TELA, não ao alvo) garante que ainda
+    // sobra uma margem antes de revelar, então não fica um "pulo" colado na
+    // borda em nenhum tamanho de seção.
     const revealObserver = new IntersectionObserver(
       (entries, observer) => {
         entries.forEach((entry) => {
@@ -62,7 +70,7 @@ if (revealTargets.length > 0) {
           observer.unobserve(entry.target);
         });
       },
-      { threshold: 0.15, rootMargin: '0px 0px -80px 0px' },
+      { threshold: 0, rootMargin: '0px 0px -80px 0px' },
     );
     revealTargets.forEach((target) => revealObserver.observe(target));
   } else {
@@ -72,8 +80,6 @@ if (revealTargets.length > 0) {
 
 const menuFilters = document.getElementById('menuFilters');
 if (menuFilters) {
-  const categories = document.querySelectorAll('.menu-category');
-
   menuFilters.addEventListener('click', (event) => {
     const button = event.target.closest('.menu-filter');
     if (!button) return;
@@ -82,8 +88,11 @@ if (menuFilters) {
       btn.classList.toggle('is-active', btn === button);
     });
 
+    // Consultado a cada clique, não capturado uma vez no load: catalog-sync.js
+    // pode inserir categoria nova (sem seção fixa no HTML) depois desse ponto,
+    // e ela precisa responder ao filtro igual às outras.
     const filter = button.dataset.filter;
-    categories.forEach((category) => {
+    document.querySelectorAll('.menu-category').forEach((category) => {
       const matches = filter === 'todos' || category.dataset.category === filter;
       category.classList.toggle('is-hidden', !matches);
     });
