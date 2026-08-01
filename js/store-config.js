@@ -38,6 +38,13 @@
     document.getElementById('footerLogo')?.setAttribute('src', url);
   }
 
+  function updateHeroVideo(url) {
+    const video = document.getElementById('heroVideo');
+    if (!video) return;
+    video.setAttribute('src', url);
+    video.load();
+  }
+
   function revealSocialLink(id, url) {
     if (!url) return;
     const li = document.getElementById(id);
@@ -176,6 +183,7 @@
       if (settings.whatsapp) updateWhatsappLinks(settings.whatsapp);
       if (settings.instagram_url) updateInstagramLinks(settings.instagram_url);
       if (settings.logo_url) updateLogo(settings.logo_url);
+      if (settings.hero_video_url) updateHeroVideo(settings.hero_video_url);
       revealSocialLink('footerFacebook', settings.facebook_url);
       revealSocialLink('footerTiktok', settings.tiktok_url);
       updateFooterText('footerAddress', settings.address);

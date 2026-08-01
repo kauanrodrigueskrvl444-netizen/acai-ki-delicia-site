@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/sitemap.xml
