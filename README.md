@@ -45,8 +45,12 @@ O único endereço configurável é o do painel, em `public/js/config.js`
 
 Três destinos publicados hoje, todos a partir do mesmo `public/`:
 
-1. **GitHub Pages** (canônico) — branch `gh-pages`, gerada a partir de
-   `master`. É a URL oficial enquanto não houver domínio próprio.
+1. **GitHub Pages** (canônico) — branch `gh-pages`, publicada automaticamente
+   a cada push em `master` que muda algo em `public/`
+   (`.github/workflows/deploy-gh-pages.yml`). É a URL oficial enquanto não
+   houver domínio próprio. Antes de 01/08/2026 esse passo era manual e ficou
+   esquecido por dias — checar `gh run list` se desconfiar que algo não foi
+   ao ar.
 2. **Vercel** — projeto próprio (`acai-ki-delicia-site.vercel.app`), deploy
    automático a cada push em `master`. `vercel.json` força `framework: null`
    porque o repo tem `server.js` (só pra rodar local) que a Vercel tentaria
