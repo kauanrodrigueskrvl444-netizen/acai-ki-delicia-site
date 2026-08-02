@@ -38,6 +38,24 @@
     document.getElementById('footerLogo')?.setAttribute('src', url);
   }
 
+  // Nome da loja (Configurações no painel) reflete nos lugares que dependem
+  // só de texto renderizado. Título da aba, alt da logo e rodapé — todos
+  // lidos por gente, não por robô. Meta tags de compartilhamento (og:*,
+  // twitter:*) e o JSON-LD ficam de fora de propósito: crawler de rede
+  // social e buscador leem o HTML puro, antes do JS rodar, então reescrever
+  // esses valores aqui não teria efeito nenhum no link que aparece
+  // compartilhado — precisaria virar HTML gerado no servidor pra valer.
+  function updateStoreName(name) {
+    if (!name) return;
+    document.title = `${name} | Açaí premium em Perus, SP`;
+    const navLogo = document.getElementById('navLogo');
+    const footerLogo = document.getElementById('footerLogo');
+    if (navLogo) navLogo.alt = name;
+    if (footerLogo) footerLogo.alt = name;
+    const footerBrandName = document.getElementById('footerBrandName');
+    if (footerBrandName) footerBrandName.textContent = name;
+  }
+
   function updateHeroVideo(url) {
     const video = document.getElementById('heroVideo');
     if (!video) return;
@@ -180,6 +198,7 @@
       window.__MIN_ORDER__ = Number(settings.min_order ?? 0);
       window.__DELIVERY_FEE__ = Number(settings.delivery_fee ?? 0);
 
+      updateStoreName(settings.name);
       if (settings.whatsapp) updateWhatsappLinks(settings.whatsapp);
       if (settings.instagram_url) updateInstagramLinks(settings.instagram_url);
       if (settings.logo_url) updateLogo(settings.logo_url);

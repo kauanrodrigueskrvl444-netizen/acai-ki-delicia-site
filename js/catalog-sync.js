@@ -86,7 +86,7 @@
   const CART_ICON_SVG =
     '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h2.2l2.3 12.1a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.55L21 8H5.4"/></svg>';
 
-  function buildPromoCard(product) {
+  function buildProductCard(product) {
     const article = document.createElement('article');
     article.className = 'product-card';
     article.dataset.price = product.base_price;
@@ -108,6 +108,7 @@
       img.className = 'product-card-image';
       img.src = product.image_url;
       img.alt = product.name;
+      img.loading = 'lazy';
       img.setAttribute('data-image-fallback', '');
       media.appendChild(img);
     }
@@ -157,6 +158,55 @@
     return article;
   }
 
+  function buildMenuItem(product) {
+    const div = document.createElement('div');
+    div.className = 'menu-item';
+    div.dataset.price = product.base_price;
+    div.dataset.productId = product.id;
+    div.dataset.hasComplements = product.groups.length > 0 ? '1' : '0';
+
+    if (product.image_url) {
+      const img = document.createElement('img');
+      img.className = 'menu-item-thumb';
+      img.src = product.image_url;
+      img.alt = product.name;
+      img.loading = 'lazy';
+      img.setAttribute('data-image-fallback', '');
+      div.appendChild(img);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'menu-item-thumb-placeholder';
+      div.appendChild(placeholder);
+    }
+
+    const name = document.createElement('span');
+    name.className = 'menu-item-name';
+    name.textContent = product.name;
+    div.appendChild(name);
+
+    const priceEl = document.createElement('span');
+    priceEl.className = 'menu-item-price';
+    if (product.compare_at_price && product.compare_at_price > product.base_price) {
+      const old = document.createElement('s');
+      old.className = 'menu-item-price-old';
+      old.textContent = formatPrice(product.compare_at_price);
+      priceEl.appendChild(old);
+    }
+    const strong = document.createElement('strong');
+    strong.textContent = formatPrice(product.base_price);
+    priceEl.appendChild(strong);
+    div.appendChild(priceEl);
+
+    const button = document.createElement('button');
+    button.className = 'menu-item-add';
+    button.setAttribute('data-add-to-cart', '');
+    button.setAttribute('aria-label', 'Adicionar ao carrinho');
+    button.textContent = '+';
+    div.appendChild(button);
+
+    return div;
+  }
+
   // Promoção é sempre um produto real (is_promo=true em `products`), não uma
   // seção separada — o painel controla preço, foto, selo e o "de" riscado no
   // mesmo cadastro do cardápio. Sem nenhum marcado, a seção some: mostrar os
@@ -177,7 +227,90 @@
 
     section.hidden = false;
     grid.innerHTML = '';
-    promoProducts.forEach((product) => grid.appendChild(buildPromoCard(product)));
+    promoProducts.forEach((product) => grid.appendChild(buildProductCard(product)));
+  }
+
+  // Cada seção de categoria (exceto Mais Vendidos, que é vitrine curada e
+  // fica estática) é montada 100% a partir do banco: produto novo cadastrado
+  // no painel aparece aqui sem precisar mexer no HTML nem fazer deploy.
+  //
+  // Os tamanhos base do "Monte seu Açaí" (Açaí Tradicional 300/400/500/700ml)
+  // são produtos reais no banco só pra ter preço próprio — não são item de
+  // cardápio à parte, então ficam de fora daqui pra não duplicar o builder.
+  function syncCategories(categoryProducts) {
+    const builderBaseSizeNames = new Set(
+      [...document.querySelectorAll('input[name="builder-base-size"]')].map((el) => norm(el.dataset.name)),
+    );
+
+    document.querySelectorAll('.menu-category').forEach((cat) => {
+      if (cat.dataset.category === 'mais-vendidos') return;
+
+      const titleEl = cat.querySelector('.menu-category-title');
+      const items = (categoryProducts.get(norm(titleEl && titleEl.textContent)) || []).filter(
+        (p) => !builderBaseSizeNames.has(norm(p.name)),
+      );
+      const usesCards = !!cat.querySelector('.product-cards');
+      const container = cat.querySelector('.product-cards, .menu-list');
+      if (!container) return;
+
+      if (items.length === 0) {
+        cat.hidden = true;
+        return;
+      }
+
+      cat.hidden = false;
+      container.innerHTML = '';
+      items.forEach((product) => {
+        container.appendChild(usesCards ? buildProductCard(product) : buildMenuItem(product));
+      });
+    });
+  }
+
+  // Categoria criada no painel sem seção fixa no HTML (uma categoria nova,
+  // além das que já existiam quando o site foi montado) ganha uma seção do
+  // zero aqui, no fim do cardápio, na ordem das outras categorias novas —
+  // no estilo de lista compacta, o padrão da maioria das seções existentes.
+  // Sem isso a categoria nova simplesmente não aparecia em lugar nenhum.
+  function syncNewCategories(categories, categoryProducts) {
+    const menuCategories = document.querySelector('.menu-categories');
+    const menuFilters = document.getElementById('menuFilters');
+    if (!menuCategories) return;
+
+    const existingNames = new Set(
+      [...document.querySelectorAll('.menu-category-title')].map((el) => norm(el.textContent)),
+    );
+
+    categories
+      .filter((c) => !existingNames.has(norm(c.name)))
+      .forEach((category) => {
+        const slug = norm(category.name);
+        const items = categoryProducts.get(slug) || [];
+        if (items.length === 0) return;
+
+        const section = document.createElement('div');
+        section.className = 'menu-category';
+        section.dataset.category = slug;
+
+        const title = document.createElement('h3');
+        title.className = 'menu-category-title';
+        title.textContent = category.name;
+        section.appendChild(title);
+
+        const list = document.createElement('div');
+        list.className = 'menu-list';
+        items.forEach((product) => list.appendChild(buildMenuItem(product)));
+        section.appendChild(list);
+
+        menuCategories.appendChild(section);
+
+        if (menuFilters) {
+          const button = document.createElement('button');
+          button.className = 'menu-filter';
+          button.dataset.filter = slug;
+          button.textContent = category.name;
+          menuFilters.appendChild(button);
+        }
+      });
   }
 
   async function loadCatalog() {
@@ -187,12 +320,14 @@
       const [productsRes, categoriesRes] = await Promise.all([
         fetch(
           `${SUPABASE_URL}/rest/v1/products` +
-            `?select=id,name,description,base_price,image_url,is_active,is_promo,compare_at_price,promo_badge,promo_sort_order,product_complement_links(complement_groups(id,name,is_required,min_select,max_select,complement_items(id,name,price_delta,is_active)))` +
+            `?select=id,name,description,base_price,image_url,is_active,is_promo,compare_at_price,promo_badge,promo_sort_order,sort_order,product_categories!products_category_id_fkey(name),product_category_links(product_categories(name)),product_complement_links(complement_groups(id,name,is_required,min_select,max_select,complement_items(id,name,price_delta,is_active)))` +
             `&is_active=eq.true`,
           { headers: { apikey: SUPABASE_ANON_KEY } },
         ),
         // RLS pública só devolve categoria ativa — "não veio" já significa desativada.
-        fetch(`${SUPABASE_URL}/rest/v1/product_categories?select=name`, {
+        // order=sort_order.asc: categoria nova (sem seção fixa no HTML) entra
+        // no fim do cardápio na ordem certa entre as outras categorias novas.
+        fetch(`${SUPABASE_URL}/rest/v1/product_categories?select=name,sort_order&order=sort_order.asc`, {
           headers: { apikey: SUPABASE_ANON_KEY },
         }),
       ]);
@@ -233,16 +368,40 @@
         compare_at_price: p.compare_at_price === null ? null : Number(p.compare_at_price),
         promo_badge: p.promo_badge,
         promo_sort_order: p.promo_sort_order,
+        sort_order: p.sort_order,
+        category_name: p.product_categories ? p.product_categories.name : null,
+        // Categorias extras (product_category_links) somam à principal — um
+        // produto pode aparecer em mais de uma seção da LP (ex: um combo que
+        // também é uma marmita) sem duplicar o cadastro.
+        extra_category_names: (p.product_category_links || [])
+          .map((link) => link.product_categories && link.product_categories.name)
+          .filter(Boolean),
         groups,
       });
     }
 
-    // A RLS só entrega produto ativo pro público, então "não veio na consulta"
-    // e "foi desativado no painel" chegam iguais aqui. Como o importador
-    // cadastrou todos os itens desta página, tratar ausência como indisponível
-    // é o que faz o painel realmente controlar a vitrine. Só vale quando a
-    // consulta respondeu — sem rede a função retorna antes e nada é tocado.
-    document.querySelectorAll('.product-card, .menu-item').forEach((el) => {
+    // RLS só embute a categoria se ela estiver ativa (mesma regra da consulta
+    // em paralelo) — produto de categoria desativada ou sem categoria não
+    // entra no balde dela.
+    const categoryProducts = new Map();
+    for (const product of window.__CATALOG__.byName.values()) {
+      const categoryNames = new Set(
+        [product.category_name, ...product.extra_category_names].map(norm).filter(Boolean),
+      );
+      for (const categoryName of categoryNames) {
+        if (!activeCategoryNames.has(categoryName)) continue;
+        if (!categoryProducts.has(categoryName)) categoryProducts.set(categoryName, []);
+        categoryProducts.get(categoryName).push(product);
+      }
+    }
+    for (const list of categoryProducts.values()) {
+      list.sort((a, b) => a.sort_order - b.sort_order);
+    }
+
+    // "Mais Vendidos" é uma vitrine curada com produtos de várias categorias,
+    // não uma categoria do banco — continua casando por nome com os cards
+    // fixos do HTML em vez de ser reconstruída.
+    document.querySelectorAll('.menu-category[data-category="mais-vendidos"] .product-card').forEach((el) => {
       const nameEl = el.querySelector('.product-card-title, .menu-item-name');
       const product = window.__CATALOG__.byName.get(norm(nameEl && nameEl.textContent));
       if (product) {
@@ -251,27 +410,15 @@
         el.hidden = true;
       }
     });
+    const maisVendidos = document.querySelector('.menu-category[data-category="mais-vendidos"]');
+    if (maisVendidos) {
+      const visible = [...maisVendidos.querySelectorAll('.product-card')].some((el) => !el.hidden);
+      maisVendidos.hidden = !visible;
+    }
 
     syncPromocoes();
-
-    // Categoria desativada no painel esconde a seção inteira. "Mais Vendidos"
-    // é uma vitrine curada com produtos de várias categorias, não uma
-    // categoria do banco — fica de fora dessa regra, só some pela checagem
-    // de itens visíveis logo abaixo.
-    document.querySelectorAll('.menu-category').forEach((cat) => {
-      if (cat.dataset.category === 'mais-vendidos') return;
-      const titleEl = cat.querySelector('.menu-category-title');
-      const name = norm(titleEl && titleEl.textContent);
-      if (name && !activeCategoryNames.has(name)) cat.hidden = true;
-    });
-
-    // Categoria que ficou sem nenhum item visível some junto, pra não deixar
-    // um título de seção órfão no cardápio.
-    document.querySelectorAll('.menu-category').forEach((cat) => {
-      if (cat.hidden) return;
-      const visible = [...cat.querySelectorAll('.product-card, .menu-item')].some((el) => !el.hidden);
-      cat.hidden = !visible;
-    });
+    syncCategories(categoryProducts);
+    syncNewCategories(categories, categoryProducts);
 
     // "Monte seu Açaí": liga cada tamanho de base ao produto do painel e
     // resolve os adicionais marcados pelo nome, pra o pedido do builder

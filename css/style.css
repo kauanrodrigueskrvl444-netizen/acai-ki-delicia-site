@@ -1752,6 +1752,34 @@ img {
   font-size: 1.05rem;
   font-weight: 700;
   margin-bottom: 0.9rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.builder-step-title h3 {
+  display: contents;
+}
+
+.builder-step-title::-webkit-details-marker {
+  display: none;
+}
+
+.builder-step-title::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  margin-left: auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.builder-step[open] > .builder-step-title::after {
+  transform: rotate(-135deg);
 }
 
 .builder-step-number {
@@ -2273,6 +2301,15 @@ img {
 [data-reveal].is-revealed {
   opacity: 1;
   transform: none;
+}
+
+/* Cardápio e Monte seu Açaí são seções grandes (várias categorias/etapas
+   com fotos) — animar transform numa caixa desse tamanho é pesado pra
+   compor no celular e o efeito de slide não se paga. Só fade, mais rápido. */
+#cardapio[data-reveal],
+#monte-seu-acai[data-reveal] {
+  transform: none;
+  transition: opacity 0.35s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
