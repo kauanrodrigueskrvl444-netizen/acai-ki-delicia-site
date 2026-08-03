@@ -370,6 +370,13 @@ img {
   max-width: 34rem;
 }
 
+/* Vídeo do topo removido no painel: o bloco de mídia sai e o texto ocupa a
+   largura inteira, em vez de deixar meia tela vazia. A classe é posta pelo
+   store-config.js quando as configurações chegam sem vídeo. */
+.hero-grid.hero-sem-midia .hero-right {
+  display: none;
+}
+
 .hero-eyebrow {
   display: inline-flex;
   align-items: center;
@@ -555,6 +562,14 @@ img {
   .hero-grid {
     grid-template-columns: 1.3fr 0.8fr;
     gap: 4.5rem;
+  }
+
+  .hero-grid.hero-sem-midia {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-grid.hero-sem-midia .hero-left {
+    max-width: 48rem;
   }
 }
 
