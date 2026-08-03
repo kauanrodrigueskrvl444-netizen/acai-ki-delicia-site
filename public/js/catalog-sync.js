@@ -86,7 +86,12 @@
   const CART_ICON_SVG =
     '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h2.2l2.3 12.1a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.55L21 8H5.4"/></svg>';
 
-  function buildProductCard(product) {
+  const FLAME_SVG =
+    '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22a7 7 0 0 0 7-7c0-5-4-6-4-10 0 0-3 1.5-3 5 0 1.6-1 2.5-2 2.5S8 11 8 9c0 0-3 2.4-3 6a7 7 0 0 0 7 7Z"/></svg>';
+
+  // `destaque` só é usado pela vitrine "Mais Vendidos", que tem selo próprio
+  // (chama e texto fixo) em vez do selo de promoção do cadastro.
+  function buildProductCard(product, { destaque = false } = {}) {
     const article = document.createElement('article');
     article.className = 'product-card';
     article.dataset.price = product.base_price;
@@ -96,7 +101,12 @@
     const media = document.createElement('div');
     media.className = 'product-card-media';
 
-    if (product.promo_badge) {
+    if (destaque) {
+      const badge = document.createElement('span');
+      badge.className = 'product-card-badge';
+      badge.innerHTML = `${FLAME_SVG} Mais Vendido`;
+      media.appendChild(badge);
+    } else if (product.promo_badge) {
       const badge = document.createElement('span');
       badge.className = 'product-card-badge';
       badge.textContent = product.promo_badge;
@@ -234,6 +244,36 @@
   // fica estática) é montada 100% a partir do banco: produto novo cadastrado
   // no painel aparece aqui sem precisar mexer no HTML nem fazer deploy.
   //
+  // Vitrine "Mais Vendidos", no topo do cardápio. Eram três cards fixos no HTML
+  // casados por nome — e isso já tinha quebrado calado em produção: o HTML dizia
+  // "Açaí Chocopaçoca 500ml", o painel dizia "Cremoso açaí chocopaçoca 500ml", e
+  // o card ficava escondido. A vitrine rodava com 2 dos 3 produtos.
+  //
+  // Agora a seção sai de is_featured, igual Promoções sai de is_promo. Sem
+  // nenhum produto marcado, a seção e o filtro somem — vitrine vazia com título
+  // é pior que vitrine nenhuma.
+  function syncFeatured() {
+    const section = document.querySelector('.menu-category[data-category="mais-vendidos"]');
+    const grid = section && section.querySelector('.product-cards');
+    const filtro = document.querySelector('.menu-filter[data-filter="mais-vendidos"]');
+    if (!section || !grid) return;
+
+    const destaques = [...window.__CATALOG__.byName.values()]
+      .filter((p) => p.is_featured && p.is_active)
+      .sort((a, b) => a.featured_sort_order - b.featured_sort_order);
+
+    if (destaques.length === 0) {
+      section.hidden = true;
+      if (filtro) filtro.hidden = true;
+      return;
+    }
+
+    section.hidden = false;
+    if (filtro) filtro.hidden = false;
+    grid.innerHTML = '';
+    destaques.forEach((product) => grid.appendChild(buildProductCard(product, { destaque: true })));
+  }
+
   // As bases do "Monte seu Açaí" já são excluídas na montagem de
   // `categoryProducts` (ver loadCatalog), então não aparecem aqui.
   function syncCategories(categoryProducts) {
@@ -457,19 +497,19 @@
     });
   }
 
-  // Colunas do "Monte seu Açaí". Ficam separadas porque a LP pode ir ao ar
-  // antes da migration ser aplicada à mão no SQL Editor (o projeto não está
-  // linkado à CLI do Supabase). Pedir coluna inexistente faz o PostgREST
-  // devolver 400 e derrubaria o cardápio INTEIRO pros preços velhos do HTML —
-  // então nesse caso a consulta é refeita sem elas e só o builder fica no
-  // formato antigo, até a migration rodar.
-  const BUILDER_COLUMNS = ',is_builder_base,builder_base_label';
+  // Colunas do "Monte seu Açaí" e da vitrine "Mais Vendidos". Ficam separadas
+  // porque a LP pode ir ao ar antes da migration ser aplicada à mão no SQL
+  // Editor (o projeto não está linkado à CLI do Supabase). Pedir coluna
+  // inexistente faz o PostgREST devolver 400 e derrubaria o cardápio INTEIRO
+  // pros preços velhos do HTML — então nesse caso a consulta é refeita sem
+  // elas e só essas duas seções ficam no formato antigo, até a migration rodar.
+  const COLUNAS_NOVAS = ',is_builder_base,builder_base_label,is_featured,featured_sort_order';
 
-  function productsUrl(comColunasDoBuilder) {
+  function productsUrl(comColunasNovas) {
     return (
       `${SUPABASE_URL}/rest/v1/products` +
       `?select=id,name,description,base_price,image_url,is_active,is_promo,compare_at_price,promo_badge,promo_sort_order,sort_order` +
-      (comColunasDoBuilder ? BUILDER_COLUMNS : '') +
+      (comColunasNovas ? COLUNAS_NOVAS : '') +
       `,product_categories!products_category_id_fkey(name),product_category_links(product_categories(name)),product_complement_links(complement_groups(id,name,sort_order,is_required,min_select,max_select,complement_items(id,name,price_delta,is_active)))` +
       `&is_active=eq.true`
     );
@@ -496,6 +536,12 @@
     } catch {
       return; // sem rede: a LP segue com os preços do HTML
     }
+
+    // A consulta cai pro formato antigo quando a migration ainda não rodou, e
+    // aí essas colunas simplesmente não vêm. Detectar isso pela presença da
+    // chave separa "não existe no banco" de "existe e está desmarcado" — as
+    // duas situações pedem comportamentos opostos nas seções abaixo.
+    const temColunasNovas = products.length > 0 && Object.hasOwn(products[0], 'is_featured');
 
     const activeCategoryNames = new Set(categories.map((c) => norm(c.name)));
 
@@ -531,6 +577,8 @@
         sort_order: p.sort_order,
         is_builder_base: !!p.is_builder_base,
         builder_base_label: p.builder_base_label,
+        is_featured: !!p.is_featured,
+        featured_sort_order: p.featured_sort_order,
         category_name: p.product_categories ? p.product_categories.name : null,
         // Categorias extras (product_category_links) somam à principal — um
         // produto pode aparecer em mais de uma seção da LP (ex: um combo que
@@ -575,22 +623,31 @@
       list.sort((a, b) => a.sort_order - b.sort_order);
     }
 
-    // "Mais Vendidos" é uma vitrine curada com produtos de várias categorias,
-    // não uma categoria do banco — continua casando por nome com os cards
-    // fixos do HTML em vez de ser reconstruída.
-    document.querySelectorAll('.menu-category[data-category="mais-vendidos"] .product-card').forEach((el) => {
-      const nameEl = el.querySelector('.product-card-title, .menu-item-name');
-      const product = window.__CATALOG__.byName.get(norm(nameEl && nameEl.textContent));
-      if (product) {
-        syncCard(el, product);
-      } else {
-        el.hidden = true;
+    // "Mais Vendidos" é vitrine curada com produtos de várias categorias, não
+    // uma categoria do banco. Quando a marcação do painel ainda não existe
+    // (migration não aplicada), mantém o casamento por nome que havia antes,
+    // pra a vitrine não sumir enquanto isso.
+    //
+    // A decisão é pela EXISTÊNCIA da coluna, não por algum produto estar
+    // marcado: com a migration aplicada e o cliente desmarcando todos, o certo
+    // é a vitrine sumir — não ressuscitar os cards fixos do HTML.
+    if (temColunasNovas) {
+      syncFeatured();
+    } else {
+      document.querySelectorAll('.menu-category[data-category="mais-vendidos"] .product-card').forEach((el) => {
+        const nameEl = el.querySelector('.product-card-title, .menu-item-name');
+        const product = window.__CATALOG__.byName.get(norm(nameEl && nameEl.textContent));
+        if (product) {
+          syncCard(el, product);
+        } else {
+          el.hidden = true;
+        }
+      });
+      const maisVendidos = document.querySelector('.menu-category[data-category="mais-vendidos"]');
+      if (maisVendidos) {
+        const visible = [...maisVendidos.querySelectorAll('.product-card')].some((el) => !el.hidden);
+        maisVendidos.hidden = !visible;
       }
-    });
-    const maisVendidos = document.querySelector('.menu-category[data-category="mais-vendidos"]');
-    if (maisVendidos) {
-      const visible = [...maisVendidos.querySelectorAll('.product-card')].some((el) => !el.hidden);
-      maisVendidos.hidden = !visible;
     }
 
     syncPromocoes();
