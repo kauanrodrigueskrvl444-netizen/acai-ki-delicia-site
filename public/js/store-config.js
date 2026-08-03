@@ -63,6 +63,20 @@
     video.load();
   }
 
+  // Vídeo do topo apagado no painel. Só é chamado quando as configurações
+  // CHEGARAM e vieram sem vídeo — sem rede a função nem roda, e o arquivo do
+  // repositório continua tocando. Sem essa distinção o cliente não conseguia
+  // remover o vídeo: limpar o campo devolvia o estático do HTML.
+  function removeHeroVideo() {
+    const video = document.getElementById('heroVideo');
+    if (video) {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+    }
+    document.querySelector('.hero-grid')?.classList.add('hero-sem-midia');
+  }
+
   function revealSocialLink(id, url) {
     if (!url) return;
     const li = document.getElementById(id);
@@ -202,7 +216,10 @@
       if (settings.whatsapp) updateWhatsappLinks(settings.whatsapp);
       if (settings.instagram_url) updateInstagramLinks(settings.instagram_url);
       if (settings.logo_url) updateLogo(settings.logo_url);
+      // Chegou aqui = as configurações vieram do painel. Então vídeo vazio é
+      // decisão do cliente, não "ainda não configurado" — some de verdade.
       if (settings.hero_video_url) updateHeroVideo(settings.hero_video_url);
+      else removeHeroVideo();
       revealSocialLink('footerFacebook', settings.facebook_url);
       revealSocialLink('footerTiktok', settings.tiktok_url);
       updateFooterText('footerAddress', settings.address);
