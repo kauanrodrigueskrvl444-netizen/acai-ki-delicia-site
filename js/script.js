@@ -706,14 +706,22 @@ productModalAdd?.addEventListener('click', () => {
 });
 
 // ---- Monte seu Açaí — builder ----
-const builderCheckboxes = document.querySelectorAll('[data-builder-item]');
+const builderStepsEl = document.querySelector('.builder-steps');
 const builderSummaryList = document.getElementById('builderSummaryList');
 const builderSummaryEmpty = document.getElementById('builderSummaryEmpty');
 const builderSummaryTotal = document.getElementById('builderSummaryTotal');
 const builderAddAllBtn = document.getElementById('builderAddAll');
 
+// As opções são remontadas pelo catalog-sync.js a partir do painel (e de novo
+// a cada troca de base), então a lista precisa ser consultada na hora — uma
+// NodeList guardada no carregamento apontaria pros inputs antigos, já fora do
+// documento, e o builder pararia de responder.
+function getBuilderInputs() {
+  return Array.from(document.querySelectorAll('[data-builder-item]'));
+}
+
 function getBuilderSelection() {
-  return Array.from(builderCheckboxes).filter((checkbox) => checkbox.checked);
+  return getBuilderInputs().filter((checkbox) => checkbox.checked);
 }
 
 function renderBuilderSummary() {
@@ -741,9 +749,20 @@ function renderBuilderSummary() {
   if (builderSummaryTotal) builderSummaryTotal.textContent = formatPrice(total);
 }
 
-builderCheckboxes.forEach((checkbox) => {
-  checkbox.addEventListener('change', renderBuilderSummary);
+// Delegação: as opções são recriadas pelo painel, então ouvir cada input
+// individualmente perderia os que nascem depois.
+builderStepsEl?.addEventListener('change', (event) => {
+  if (event.target.matches('[data-builder-item]')) renderBuilderSummary();
 });
+
+// Cada adicional do builder resolve pro id do painel. O input já nasce com o
+// id quando a seção é montada a partir do banco; a busca por nome só existe
+// pro fallback do HTML fixo (nenhuma base marcada no painel).
+function builderComplementId(input) {
+  if (input.dataset.complementId) return input.dataset.complementId;
+  const porNome = window.__CATALOG__?.complementIdByName;
+  return porNome ? porNome(input.dataset.name) : null;
+}
 
 builderAddAllBtn?.addEventListener('click', () => {
   const selected = getBuilderSelection();
@@ -754,10 +773,24 @@ builderAddAllBtn?.addEventListener('click', () => {
   // revalidar o preço — igual ao resto do cardápio.
   const base = selected.find((c) => c.name === 'builder-base-size');
   const extras = selected.filter((c) => c !== base);
-  const catalogo = window.__CATALOG__;
 
-  if (base && base.dataset.productId && catalogo?.complementIdByName) {
-    const ids = extras.map((c) => catalogo.complementIdByName(c.dataset.name)).filter(Boolean);
+  if (base && base.dataset.productId) {
+    const ids = extras.map(builderComplementId);
+
+    // Um adicional que não resolve pro painel não pode ser cobrado: o servidor
+    // recalcula o total a partir dos ids, então mandar o pedido assim tiraria
+    // o item do preço e da comanda — o cliente pagaria menos e receberia menos
+    // do que escolheu, sem ninguém perceber. Melhor recusar e avisar.
+    const naoResolvidos = extras.filter((_, i) => !ids[i]).map((c) => c.dataset.name);
+    if (naoResolvidos.length) {
+      showCartError(
+        `Não foi possível confirmar o preço de: ${naoResolvidos.join(', ')}. ` +
+          'Atualize a página e tente de novo.',
+      );
+      openCart();
+      return;
+    }
+
     const preco = selected.reduce((soma, c) => soma + parseFloat(c.dataset.price), 0);
     const nome = extras.length
       ? `${base.dataset.name} (+ ${extras.map((c) => c.dataset.name).join(', ')})`
@@ -771,7 +804,7 @@ builderAddAllBtn?.addEventListener('click', () => {
     });
   }
 
-  builderCheckboxes.forEach((checkbox) => {
+  getBuilderInputs().forEach((checkbox) => {
     if (!checkbox.disabled && checkbox.type !== 'radio') checkbox.checked = false;
   });
   renderBuilderSummary();
