@@ -2247,6 +2247,26 @@ img {
   display: none;
 }
 
+/* Agendamento. Some inteiro quando o painel não aceita — e o drawer tem no
+   máximo 400px em qualquer tela, então nada aqui pode contar com espaço
+   lado a lado. */
+.cart-schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.cart-schedule[hidden],
+.cart-slot-empty[hidden] {
+  display: none;
+}
+
+.cart-slot-empty {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted, #6b7280);
+}
+
 .cart-error {
   margin: 0;
   padding: 0.5rem 0.7rem;

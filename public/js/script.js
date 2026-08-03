@@ -418,6 +418,15 @@ cartCheckoutBtn?.addEventListener('click', async () => {
     }
   }
 
+  // Agendamento. Só existe quando o painel aceita e há horário livre; caso
+  // contrário `scheduledFor` nem entra no payload e o pedido é "o quanto
+  // antes", exatamente como sempre foi.
+  let scheduledFor;
+  if (window.__SCHEDULING__ && document.getElementById('cartWhen')?.value === 'scheduled') {
+    scheduledFor = document.getElementById('cartSlot')?.value || '';
+    if (!scheduledFor) return showCartError('Escolha o dia e a hora da entrega.');
+  }
+
   // Sem productId não dá pra revalidar no servidor (produto fora do painel),
   // e sem endereço do painel não dá pra registrar o pedido: nos dois casos
   // mantém o comportamento antigo, só WhatsApp.
@@ -447,6 +456,7 @@ cartCheckoutBtn?.addEventListener('click', async () => {
         referencePoint: value('cartReference'),
         paymentMethod: document.getElementById('cartPayment')?.value || 'pix',
         needsChange: false,
+        ...(scheduledFor ? { scheduledFor } : {}),
         items: cart.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
