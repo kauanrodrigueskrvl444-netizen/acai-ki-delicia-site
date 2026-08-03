@@ -234,21 +234,14 @@
   // fica estática) é montada 100% a partir do banco: produto novo cadastrado
   // no painel aparece aqui sem precisar mexer no HTML nem fazer deploy.
   //
-  // Os tamanhos base do "Monte seu Açaí" (Açaí Tradicional 300/400/500/700ml)
-  // são produtos reais no banco só pra ter preço próprio — não são item de
-  // cardápio à parte, então ficam de fora daqui pra não duplicar o builder.
+  // As bases do "Monte seu Açaí" já são excluídas na montagem de
+  // `categoryProducts` (ver loadCatalog), então não aparecem aqui.
   function syncCategories(categoryProducts) {
-    const builderBaseSizeNames = new Set(
-      [...document.querySelectorAll('input[name="builder-base-size"]')].map((el) => norm(el.dataset.name)),
-    );
-
     document.querySelectorAll('.menu-category').forEach((cat) => {
       if (cat.dataset.category === 'mais-vendidos') return;
 
       const titleEl = cat.querySelector('.menu-category-title');
-      const items = (categoryProducts.get(norm(titleEl && titleEl.textContent)) || []).filter(
-        (p) => !builderBaseSizeNames.has(norm(p.name)),
-      );
+      const items = categoryProducts.get(norm(titleEl && titleEl.textContent)) || [];
       const usesCards = !!cat.querySelector('.product-cards');
       const container = cat.querySelector('.product-cards, .menu-list');
       if (!container) return;
@@ -313,16 +306,182 @@
       });
   }
 
+  // ---- "Monte seu Açaí" montado a partir do painel ----
+  //
+  // Antes essa seção era uma lista fixa no HTML, casada com o painel por NOME.
+  // Bastava o cliente renomear um adicional pra o preço travar no valor velho,
+  // ou renomear uma base pra o pedido parar de ser registrado (sem productId o
+  // checkout cai no fallback de WhatsApp, sem comanda). E adicional novo nunca
+  // aparecia aqui.
+  //
+  // Agora as bases vêm de is_builder_base e os complementos vêm dos grupos de
+  // adicionais ligados à base escolhida. Renomear, criar, desativar e mudar
+  // preço passam a refletir sozinhos, sem deploy.
+  function criaStep(numero, titulo, aberto) {
+    const details = document.createElement('details');
+    details.className = 'builder-step';
+    details.open = !!aberto;
+
+    const summary = document.createElement('summary');
+    summary.className = 'builder-step-title';
+    const h3 = document.createElement('h3');
+    const num = document.createElement('span');
+    num.className = 'builder-step-number';
+    num.textContent = numero;
+    h3.append(num, document.createTextNode(' ' + titulo));
+    summary.appendChild(h3);
+
+    const options = document.createElement('div');
+    options.className = 'builder-options';
+
+    details.append(summary, options);
+    return details;
+  }
+
+  function criaOpcao({ tipo, nome, rotulo, preco, productId, complementId, marcado }) {
+    const label = document.createElement('label');
+    label.className = 'builder-option';
+
+    const input = document.createElement('input');
+    input.type = tipo;
+    if (tipo === 'radio') input.name = 'builder-base-size';
+    input.setAttribute('data-builder-item', '');
+    input.dataset.name = nome;
+    input.dataset.price = preco;
+    if (productId) input.dataset.productId = productId;
+    if (complementId) input.dataset.complementId = complementId;
+    input.checked = !!marcado;
+
+    const nomeEl = document.createElement('span');
+    nomeEl.className = 'builder-option-name';
+    nomeEl.textContent = rotulo;
+
+    const precoEl = document.createElement('span');
+    precoEl.className = 'builder-option-price';
+    precoEl.textContent = formatPrice(preco);
+
+    label.append(input, nomeEl, precoEl);
+    return label;
+  }
+
+  function syncBuilder() {
+    const stepsEl = document.querySelector('.builder-steps');
+    const section = document.getElementById('monte-seu-acai');
+    if (!stepsEl || !section) return;
+
+    const bases = [...window.__CATALOG__.byName.values()]
+      .filter((p) => p.is_builder_base && p.is_active)
+      .sort((a, b) => a.sort_order - b.sort_order);
+
+    // Nenhuma base marcada no painel (migration ainda não aplicada, ou o
+    // cliente desmarcou todas): mantém o HTML fixo exatamente como está. A
+    // seção continua funcionando com os preços do HTML em vez de sumir.
+    if (bases.length === 0) return;
+
+    // O que já estava marcado antes de remontar — por id quando existe, por
+    // nome no primeiro render (o HTML fixo não tem id de adicional).
+    const marcados = () => {
+      const ids = new Set();
+      const nomes = new Set();
+      stepsEl
+        .querySelectorAll('input[data-builder-item]:checked:not([name="builder-base-size"])')
+        .forEach((input) => {
+          if (input.dataset.complementId) ids.add(input.dataset.complementId);
+          nomes.add(norm(input.dataset.name));
+        });
+      return { ids, nomes };
+    };
+
+    const baseAnterior = stepsEl.querySelector('input[name="builder-base-size"]:checked');
+    const baseInicial =
+      bases.find((b) => b.id === (baseAnterior && baseAnterior.dataset.productId)) ||
+      bases.find((b) => norm(b.name) === norm(baseAnterior && baseAnterior.dataset.name)) ||
+      bases[0];
+
+    const renderGrupos = (base) => {
+      const anteriores = marcados();
+      stepsEl.querySelectorAll('.builder-step[data-builder-group]').forEach((el) => el.remove());
+
+      base.groups
+        .slice()
+        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name, 'pt-BR'))
+        .forEach((group, i) => {
+          const step = criaStep(i + 2, group.name, false);
+          step.dataset.builderGroup = group.id;
+          const options = step.querySelector('.builder-options');
+
+          group.items.forEach((item) => {
+            options.appendChild(
+              criaOpcao({
+                tipo: 'checkbox',
+                nome: item.name,
+                rotulo: item.name,
+                preco: item.price,
+                complementId: item.id,
+                marcado: anteriores.ids.has(item.id) || anteriores.nomes.has(norm(item.name)),
+              }),
+            );
+          });
+
+          stepsEl.appendChild(step);
+        });
+    };
+
+    // Passo 1 (Base) é montado uma vez; os grupos são remontados a cada troca
+    // de base, porque grupos de adicionais são ligados por produto no painel e
+    // dois tamanhos podem ter listas diferentes.
+    const baseStep = criaStep(1, 'Base', true);
+    const baseOptions = baseStep.querySelector('.builder-options');
+    bases.forEach((base) => {
+      baseOptions.appendChild(
+        criaOpcao({
+          tipo: 'radio',
+          nome: base.name,
+          rotulo: base.builder_base_label || base.name,
+          preco: base.base_price,
+          productId: base.id,
+          marcado: base.id === baseInicial.id,
+        }),
+      );
+    });
+
+    renderGrupos(baseInicial);
+    stepsEl.querySelectorAll('.builder-step:not([data-builder-group])').forEach((el) => el.remove());
+    stepsEl.prepend(baseStep);
+
+    stepsEl.addEventListener('change', (event) => {
+      const input = event.target;
+      if (!input || input.name !== 'builder-base-size') return;
+      const base = bases.find((b) => b.id === input.dataset.productId);
+      if (base) renderGrupos(base);
+    });
+  }
+
+  // Colunas do "Monte seu Açaí". Ficam separadas porque a LP pode ir ao ar
+  // antes da migration ser aplicada à mão no SQL Editor (o projeto não está
+  // linkado à CLI do Supabase). Pedir coluna inexistente faz o PostgREST
+  // devolver 400 e derrubaria o cardápio INTEIRO pros preços velhos do HTML —
+  // então nesse caso a consulta é refeita sem elas e só o builder fica no
+  // formato antigo, até a migration rodar.
+  const BUILDER_COLUMNS = ',is_builder_base,builder_base_label';
+
+  function productsUrl(comColunasDoBuilder) {
+    return (
+      `${SUPABASE_URL}/rest/v1/products` +
+      `?select=id,name,description,base_price,image_url,is_active,is_promo,compare_at_price,promo_badge,promo_sort_order,sort_order` +
+      (comColunasDoBuilder ? BUILDER_COLUMNS : '') +
+      `,product_categories!products_category_id_fkey(name),product_category_links(product_categories(name)),product_complement_links(complement_groups(id,name,sort_order,is_required,min_select,max_select,complement_items(id,name,price_delta,is_active)))` +
+      `&is_active=eq.true`
+    );
+  }
+
   async function loadCatalog() {
     let products;
     let categories;
     try {
       const [productsRes, categoriesRes] = await Promise.all([
-        fetch(
-          `${SUPABASE_URL}/rest/v1/products` +
-            `?select=id,name,description,base_price,image_url,is_active,is_promo,compare_at_price,promo_badge,promo_sort_order,sort_order,product_categories!products_category_id_fkey(name),product_category_links(product_categories(name)),product_complement_links(complement_groups(id,name,is_required,min_select,max_select,complement_items(id,name,price_delta,is_active)))` +
-            `&is_active=eq.true`,
-          { headers: { apikey: SUPABASE_ANON_KEY } },
+        fetch(productsUrl(true), { headers: { apikey: SUPABASE_ANON_KEY } }).then((res) =>
+          res.ok ? res : fetch(productsUrl(false), { headers: { apikey: SUPABASE_ANON_KEY } }),
         ),
         // RLS pública só devolve categoria ativa — "não veio" já significa desativada.
         // order=sort_order.asc: categoria nova (sem seção fixa no HTML) entra
@@ -347,6 +506,7 @@
         .map((g) => ({
           id: g.id,
           name: g.name,
+          sortOrder: g.sort_order,
           isRequired: g.is_required,
           minSelect: g.min_select,
           maxSelect: g.max_select,
@@ -369,6 +529,8 @@
         promo_badge: p.promo_badge,
         promo_sort_order: p.promo_sort_order,
         sort_order: p.sort_order,
+        is_builder_base: !!p.is_builder_base,
+        builder_base_label: p.builder_base_label,
         category_name: p.product_categories ? p.product_categories.name : null,
         // Categorias extras (product_category_links) somam à principal — um
         // produto pode aparecer em mais de uma seção da LP (ex: um combo que
@@ -383,8 +545,23 @@
     // RLS só embute a categoria se ela estiver ativa (mesma regra da consulta
     // em paralelo) — produto de categoria desativada ou sem categoria não
     // entra no balde dela.
+    // Base do builder é produto real só pra ter preço próprio, não item de
+    // cardápio — sai de todas as seções pra não duplicar o "Monte seu Açaí".
+    //
+    // Quando a marcação do painel ainda não existe (migration não aplicada, e
+    // a consulta caiu no formato antigo), volta a identificar a base pelos
+    // nomes fixos do HTML: é frágil, mas é exatamente o que a LP já fazia — o
+    // que não pode é a base aparecer duplicada no cardápio enquanto isso.
+    const temMarcacaoDeBase = [...window.__CATALOG__.byName.values()].some((p) => p.is_builder_base);
+    const nomesDeBaseNoHtml = new Set(
+      [...document.querySelectorAll('input[name="builder-base-size"]')].map((el) => norm(el.dataset.name)),
+    );
+    const ehBase = (product) =>
+      temMarcacaoDeBase ? product.is_builder_base : nomesDeBaseNoHtml.has(norm(product.name));
+
     const categoryProducts = new Map();
     for (const product of window.__CATALOG__.byName.values()) {
+      if (ehBase(product)) continue;
       const categoryNames = new Set(
         [product.category_name, ...product.extra_category_names].map(norm).filter(Boolean),
       );
@@ -420,22 +597,6 @@
     syncCategories(categoryProducts);
     syncNewCategories(categories, categoryProducts);
 
-    // "Monte seu Açaí": liga cada tamanho de base ao produto do painel e
-    // resolve os adicionais marcados pelo nome, pra o pedido do builder
-    // seguir o mesmo caminho seguro do resto do site.
-    const aplicaPreco = (input, valor) => {
-      input.dataset.price = valor;
-      const label = input.closest('.builder-option')?.querySelector('.builder-option-price');
-      if (label) label.textContent = formatPrice(valor);
-    };
-
-    document.querySelectorAll('input[name="builder-base-size"]').forEach((radio) => {
-      const product = window.__CATALOG__.byName.get(norm(radio.dataset.name));
-      if (!product) return;
-      radio.dataset.productId = product.id;
-      aplicaPreco(radio, product.base_price);
-    });
-
     const acharAdicional = (nome) => {
       for (const product of window.__CATALOG__.byName.values()) {
         for (const group of product.groups) {
@@ -446,15 +607,13 @@
       return null;
     };
 
+    // Só sobra pro caminho de fallback: quando nenhuma base está marcada no
+    // painel, o builder continua sendo o HTML fixo e o carrinho precisa
+    // resolver o adicional pelo nome, como antes. Com o builder montado a
+    // partir do banco, cada opção já carrega o id no próprio input.
     window.__CATALOG__.complementIdByName = (nome) => acharAdicional(nome)?.id ?? null;
 
-    // Preço dos adicionais do builder também sai do painel.
-    document
-      .querySelectorAll('input[data-builder-item]:not([name="builder-base-size"])')
-      .forEach((input) => {
-        const item = acharAdicional(input.dataset.name);
-        if (item) aplicaPreco(input, item.price);
-      });
+    syncBuilder();
 
     window.__CATALOG__.ready = true;
     document.dispatchEvent(new CustomEvent('catalog:ready'));
