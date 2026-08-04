@@ -1015,6 +1015,26 @@
             <input type="text" id="cartReference" placeholder="Perto de...">
           </div>
         </div>
+        <!-- Agendamento: fica escondido até o painel confirmar que a loja
+             aceita (store-config.js). Sem isso o cliente veria a opção e
+             escolheria um horário que o servidor recusaria depois. -->
+        <div class="cart-schedule" id="cartSchedule" hidden>
+          <div class="cart-field">
+            <label for="cartWhen">Quando você quer receber</label>
+            <select id="cartWhen">
+              <option value="asap">O quanto antes</option>
+              <option value="scheduled">Escolher dia e hora</option>
+            </select>
+          </div>
+          <div class="cart-field" id="cartSlotField" hidden>
+            <label for="cartSlot">Dia e hora</label>
+            <select id="cartSlot"></select>
+            <p class="cart-slot-empty" id="cartSlotEmpty" hidden>
+              Sem horários livres no momento. Escolha "o quanto antes".
+            </p>
+          </div>
+        </div>
+
         <div class="cart-field">
           <label for="cartPayment">Pagamento</label>
           <select id="cartPayment">

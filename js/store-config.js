@@ -14,6 +14,10 @@
   const SUPABASE_URL = 'https://lungknnnbddzgjvemdlp.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_2sr3hUBpek8LqSOBOwLMkA_TsIheip3';
   const SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
+  // Os horários voltam do banco em UTC. Sem fixar o fuso, quem abrisse o site
+  // viajando (ou com o relógio do aparelho em outro fuso) veria "19:00" onde a
+  // loja marcou 20:00.
+  const TZ = 'America/Sao_Paulo';
 
   function formatPrice(value) {
     return Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -226,6 +230,7 @@
       updateFooterText('footerHours', settings.hours);
       updateClosedBanner(settings.is_open, settings.closed_message);
       updateInfoStrip(settings, zones);
+      await setupAgendamento(settings.scheduling_enabled);
     } catch {
       // Sem conexão ou config indisponível: mantém os valores fixos do HTML.
     } finally {
@@ -234,6 +239,90 @@
       // se a config falhar no meio.
       document.dispatchEvent(new CustomEvent('cart:refresh'));
     }
+  }
+
+  // ---- Agendamento ----
+  //
+  // Os horários vêm da função `horarios_disponiveis` do painel, que já aplica
+  // janela, antecedência, tamanho do bloco e limite por bloco. A LP não recria
+  // nenhuma dessas regras: só desenha o que voltou. Quando o cliente enviar o
+  // pedido, o servidor reconfere o horário contra a mesma função — a lista
+  // aqui pode ter envelhecido enquanto ele preenchia o endereço.
+  function rotuloDoHorario(iso) {
+    const data = new Date(iso);
+    const hoje = new Date();
+    const mesmoDia = (a, b) =>
+      a.toLocaleDateString('pt-BR', { timeZone: TZ }) ===
+      b.toLocaleDateString('pt-BR', { timeZone: TZ });
+
+    const amanha = new Date(hoje.getTime() + 24 * 60 * 60 * 1000);
+    const hora = data.toLocaleTimeString('pt-BR', {
+      timeZone: TZ,
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    if (mesmoDia(data, hoje)) return `Hoje, ${hora}`;
+    if (mesmoDia(data, amanha)) return `Amanhã, ${hora}`;
+
+    const dia = data.toLocaleDateString('pt-BR', {
+      timeZone: TZ,
+      weekday: 'short',
+      day: '2-digit',
+      month: '2-digit',
+    });
+    return `${dia}, ${hora}`;
+  }
+
+  async function setupAgendamento(ligado) {
+    const bloco = document.getElementById('cartSchedule');
+    const quando = document.getElementById('cartWhen');
+    const campoHorario = document.getElementById('cartSlotField');
+    const selectHorario = document.getElementById('cartSlot');
+    const vazio = document.getElementById('cartSlotEmpty');
+    if (!bloco || !quando || !campoHorario || !selectHorario) return;
+
+    if (!ligado) {
+      bloco.hidden = true;
+      window.__SCHEDULING__ = false;
+      return;
+    }
+
+    let horarios = [];
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/horarios_disponiveis`, {
+        method: 'POST',
+        headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      if (res.ok) horarios = await res.json();
+    } catch {
+      // Sem rede: o agendamento simplesmente não aparece e o pedido segue
+      // como "o quanto antes", que é o fluxo de sempre.
+    }
+
+    if (!Array.isArray(horarios) || horarios.length === 0) {
+      bloco.hidden = true;
+      window.__SCHEDULING__ = false;
+      return;
+    }
+
+    selectHorario.innerHTML = '';
+    horarios.forEach((h) => {
+      const opcao = document.createElement('option');
+      opcao.value = h.slot;
+      opcao.textContent = rotuloDoHorario(h.slot);
+      selectHorario.appendChild(opcao);
+    });
+
+    if (vazio) vazio.hidden = true;
+    bloco.hidden = false;
+    window.__SCHEDULING__ = true;
+
+    quando.addEventListener('change', () => {
+      campoHorario.hidden = quando.value !== 'scheduled';
+    });
+    campoHorario.hidden = quando.value !== 'scheduled';
   }
 
   if (document.readyState === 'loading') {
