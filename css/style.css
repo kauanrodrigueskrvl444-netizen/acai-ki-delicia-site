@@ -751,7 +751,18 @@ img {
   justify-content: center;
   gap: 0.4rem;
   width: 100%;
-  padding: 0.85rem 1.4rem;
+  /* Padding lateral curto e quebra de linha liberada. O .btn-cta define
+     white-space: nowrap, o que faz sentido em botão solto mas não aqui: este
+     é largura total dentro do card, e "Adicionar ao Carrinho" precisava de
+     183px num card de 177px em telas de 768px. Os 6px que sobravam davam
+     scroll horizontal na PÁGINA INTEIRA, e a largura mínima do botão também
+     impedia a grade de cards de encolher em 700px.
+     Deixando quebrar, o botão se adapta a qualquer largura e a qualquer
+     rótulo — em vez de depender de o texto caber por sorte. */
+  padding: 0.85rem 0.75rem;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
   font-size: 0.95rem;
   transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease;
 }
@@ -763,7 +774,10 @@ img {
 
 @media (min-width: 640px) {
   .product-cards {
-    grid-template-columns: repeat(3, 1fr);
+    /* minmax(0, 1fr): sem isso as três colunas não encolhem abaixo da largura
+       natural dos cards, e a grade travava em 703px — estourando qualquer tela
+       entre 640 e 799px. */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -1004,7 +1018,9 @@ img {
 
 @media (min-width: 640px) {
   .launches-grid {
-    grid-template-columns: repeat(2, 1fr);
+    /* minmax(0, 1fr) pelo mesmo motivo das outras grades: item de grade não
+       encolhe abaixo do próprio conteúdo com 1fr puro. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1324,6 +1340,11 @@ img {
 .menu-item-name {
   font-size: 0.95rem;
   flex: 1;
+  /* Sem isto o nome não encolhe abaixo da própria palavra mais longa (o
+     min-width:auto de item flex) e empurra o botão "+" pra fora do card —
+     visível a partir de telas de 320px, onde o botão escapava até 39px além
+     da largura da tela. Com min-width:0 o nome quebra em duas linhas. */
+  min-width: 0;
 }
 
 .menu-item-price {
@@ -1367,7 +1388,8 @@ img {
 @media (min-width: 640px) {
   .menu-categories {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    /* minmax(0, 1fr) pelo mesmo motivo das outras grades. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 3rem;
     row-gap: 2.5rem;
     align-items: start;
@@ -2038,7 +2060,11 @@ img {
   text-align: center;
 }
 
-@media (min-width: 768px) {
+/* 900px e não 768px: a imagem é larga e não encolhe, então entre 768 e 899
+   sobravam ~260px pro texto — os quatro cartões ficavam com uma palavra por
+   linha, ilegíveis. Abaixo de 900 é melhor empilhar, com o texto em largura
+   inteira. */
+@media (min-width: 900px) {
   .about-content {
     flex-direction: row;
     align-items: center;
@@ -2051,6 +2077,12 @@ img {
 
   .about-body {
     flex: 1;
+    /* Item flex tem min-width:auto por padrão e se recusa a encolher abaixo
+       da largura natural do conteúdo. Dentro daqui há a grade de 2 colunas
+       de .about-facts, que travava essa largura mínima e empurrava a página:
+       em 768px o documento ficava com 798px e a LP inteira ganhava scroll
+       horizontal. min-width:0 devolve a permissão de encolher. */
+    min-width: 0;
   }
 
   .about-text {
@@ -2089,7 +2121,13 @@ img {
 
 @media (min-width: 480px) {
   .about-facts {
-    grid-template-columns: repeat(2, 1fr);
+    /* minmax(0, 1fr) e não 1fr: item de grade também tem min-width:auto por
+       padrão e se recusa a ficar menor que o próprio texto. Com as frases
+       longas destes cartões ("Motoboy próprio e parceiro, com opção de
+       retirada no local"), a grade estourava a largura da tela em 768px e
+       dava scroll horizontal na página inteira — e só depois de rolar, porque
+       antes disso o scroll-reveal mantém a seção escondida. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -2303,7 +2341,12 @@ img {
   stroke: none;
 }
 
-/* alinhamento onde o ícone acompanha texto */
+/* alinhamento onde o ícone acompanha texto.
+   flex-wrap: wrap é obrigatório aqui: container flex não quebra linha por
+   padrão, então o ícone e o texto ficavam presos numa linha só. Em 768px,
+   onde o "Sobre" vira duas colunas e sobram ~78px pro texto do cartão, a
+   frase "4,8 ★ no Google, com 35 avaliações verificadas" exigia 124px e
+   vazava — dando scroll horizontal na página inteira. */
 .product-card-btn,
 .menu-filter,
 .menu-category-title,
@@ -2312,6 +2355,7 @@ img {
 .social-proof-value,
 .product-modal-add {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
