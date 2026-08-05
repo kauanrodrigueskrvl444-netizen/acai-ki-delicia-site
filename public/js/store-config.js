@@ -248,39 +248,63 @@
   // nenhuma dessas regras: só desenha o que voltou. Quando o cliente enviar o
   // pedido, o servidor reconfere o horário contra a mesma função — a lista
   // aqui pode ter envelhecido enquanto ele preenchia o endereço.
-  function rotuloDoHorario(iso) {
-    const data = new Date(iso);
+  /** Chave do dia (AAAA-MM-DD) em São Paulo. Agrupar por ela, e não pelo Date
+   *  local do navegador, mantém a divisão de dias igual à do balcão mesmo se o
+   *  cliente estiver com o celular em outro fuso. */
+  function chaveDoDia(data) {
+    return data.toLocaleDateString('en-CA', { timeZone: TZ });
+  }
+
+  function rotuloDoDia(data) {
     const hoje = new Date();
-    const mesmoDia = (a, b) =>
-      a.toLocaleDateString('pt-BR', { timeZone: TZ }) ===
-      b.toLocaleDateString('pt-BR', { timeZone: TZ });
-
     const amanha = new Date(hoje.getTime() + 24 * 60 * 60 * 1000);
-    const hora = data.toLocaleTimeString('pt-BR', {
-      timeZone: TZ,
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
-    if (mesmoDia(data, hoje)) return `Hoje, ${hora}`;
-    if (mesmoDia(data, amanha)) return `Amanhã, ${hora}`;
-
-    const dia = data.toLocaleDateString('pt-BR', {
+    if (chaveDoDia(data) === chaveDoDia(hoje)) return 'Hoje';
+    if (chaveDoDia(data) === chaveDoDia(amanha)) return 'Amanhã';
+    return data.toLocaleDateString('pt-BR', {
       timeZone: TZ,
       weekday: 'short',
       day: '2-digit',
       month: '2-digit',
     });
-    return `${dia}, ${hora}`;
   }
+
+  function horaDoSlot(data) {
+    return data.toLocaleTimeString('pt-BR', {
+      timeZone: TZ,
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  /** Faixa do dia, pra quebrar a grade em blocos legíveis. Uma noite das 11h às
+   *  3h com bloco de 10 minutos tem 96 horários — sem separação viram uma
+   *  parede de botões iguais que ninguém percorre. */
+  function faixaDoSlot(data) {
+    const hora = Number(
+      data.toLocaleString('en-GB', { timeZone: TZ, hour: '2-digit', hour12: false }),
+    );
+    if (hora < 6) return 'Madrugada';
+    if (hora < 12) return 'Manhã';
+    if (hora < 18) return 'Tarde';
+    return 'Noite';
+  }
+
+  /** `horarios_disponiveis` devolve um número enorme como "restantes" quando
+   *  não há limite por bloco (`scheduling_max_per_slot = 0`). Só faz sentido
+   *  avisar de vaga curta quando o limite existe de verdade. */
+  const SEM_LIMITE = 1000;
 
   async function setupAgendamento(ligado) {
     const bloco = document.getElementById('cartSchedule');
     const quando = document.getElementById('cartWhen');
     const campoHorario = document.getElementById('cartSlotField');
-    const selectHorario = document.getElementById('cartSlot');
+    const campoValor = document.getElementById('cartSlot');
+    const listaDias = document.getElementById('cartSlotDays');
+    const listaHorarios = document.getElementById('cartSlotTimes');
     const vazio = document.getElementById('cartSlotEmpty');
-    if (!bloco || !quando || !campoHorario || !selectHorario) return;
+    if (!bloco || !quando || !campoHorario || !campoValor || !listaDias || !listaHorarios) {
+      return;
+    }
 
     if (!ligado) {
       bloco.hidden = true;
@@ -307,13 +331,97 @@
       return;
     }
 
-    selectHorario.innerHTML = '';
+    // Agrupa por dia mantendo a ordem que veio do banco (já crescente).
+    const dias = new Map();
     horarios.forEach((h) => {
-      const opcao = document.createElement('option');
-      opcao.value = h.slot;
-      opcao.textContent = rotuloDoHorario(h.slot);
-      selectHorario.appendChild(opcao);
+      const data = new Date(h.slot);
+      const chave = chaveDoDia(data);
+      if (!dias.has(chave)) dias.set(chave, { rotulo: rotuloDoDia(data), slots: [] });
+      dias.get(chave).slots.push({ iso: h.slot, data, restantes: Number(h.restantes) });
     });
+
+    let diaAtivo = [...dias.keys()][0];
+    // Nasce sem horário escolhido de propósito: o envio recusa vazio com
+    // "Escolha o dia e a hora", que é melhor que mandar um horário que o
+    // cliente nunca olhou.
+    campoValor.value = '';
+
+    function marcarSelecionado(iso) {
+      listaHorarios.querySelectorAll('.cart-slot-option').forEach((botao) => {
+        const marcado = botao.dataset.iso === iso;
+        botao.classList.toggle('is-selected', marcado);
+        botao.setAttribute('aria-pressed', String(marcado));
+      });
+    }
+
+    function desenharHorarios() {
+      listaHorarios.innerHTML = '';
+      const dia = dias.get(diaAtivo);
+      if (!dia) return;
+
+      let faixaAtual = null;
+      dia.slots.forEach((slot) => {
+        const faixa = faixaDoSlot(slot.data);
+        if (faixa !== faixaAtual) {
+          faixaAtual = faixa;
+          const titulo = document.createElement('p');
+          titulo.className = 'cart-slot-period';
+          titulo.textContent = faixa;
+          listaHorarios.appendChild(titulo);
+          listaHorarios.appendChild(
+            Object.assign(document.createElement('div'), { className: 'cart-slot-grid' }),
+          );
+        }
+
+        const botao = document.createElement('button');
+        // O carrinho vive dentro de um form: sem type explícito o navegador
+        // trata como submit e escolher horário enviaria o pedido.
+        botao.type = 'button';
+        botao.className = 'cart-slot-option';
+        botao.dataset.iso = slot.iso;
+        botao.textContent = horaDoSlot(slot.data);
+        botao.setAttribute('aria-pressed', 'false');
+
+        if (slot.restantes < SEM_LIMITE && slot.restantes <= 2) {
+          botao.classList.add('is-tight');
+          botao.title =
+            slot.restantes === 1
+              ? 'Última vaga nesse horário'
+              : `${slot.restantes} vagas nesse horário`;
+        }
+
+        botao.addEventListener('click', () => {
+          campoValor.value = slot.iso;
+          marcarSelecionado(slot.iso);
+        });
+
+        listaHorarios.lastElementChild.appendChild(botao);
+      });
+    }
+
+    function desenharDias() {
+      listaDias.innerHTML = '';
+      dias.forEach((dia, chave) => {
+        const botao = document.createElement('button');
+        botao.type = 'button';
+        botao.className = 'cart-slot-day';
+        botao.textContent = dia.rotulo;
+        botao.setAttribute('aria-pressed', String(chave === diaAtivo));
+        botao.classList.toggle('is-selected', chave === diaAtivo);
+        botao.addEventListener('click', () => {
+          diaAtivo = chave;
+          // Trocar de dia zera o horário: o que estava marcado era de outro
+          // dia, e mantê-lo mandaria o pedido pra data errada.
+          campoValor.value = '';
+          desenharDias();
+          desenharHorarios();
+        });
+        listaDias.appendChild(botao);
+      });
+    }
+
+    desenharDias();
+    desenharHorarios();
 
     if (vazio) vazio.hidden = true;
     bloco.hidden = false;

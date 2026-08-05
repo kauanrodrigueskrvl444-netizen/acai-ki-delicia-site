@@ -1026,9 +1026,18 @@
               <option value="scheduled">Escolher dia e hora</option>
             </select>
           </div>
+          <!-- Escolha em dois passos: primeiro o dia, depois o horário daquele
+               dia. Era uma lista única com todos os horários de todos os dias —
+               com bloco de 10 min e janela de 16h dava 475 opções num menu
+               suspenso de celular, impossível de percorrer. Separando por dia,
+               cada tela mostra só o que cabe decidir de uma vez. -->
           <div class="cart-field" id="cartSlotField" hidden>
-            <label for="cartSlot">Dia e hora</label>
-            <select id="cartSlot"></select>
+            <label id="cartSlotLabel">Dia e hora</label>
+            <!-- O horário escolhido em ISO. É daqui que o envio do pedido lê
+                 (script.js), então o id e o formato do valor não podem mudar. -->
+            <input type="hidden" id="cartSlot">
+            <div class="cart-slot-days" id="cartSlotDays" role="group" aria-label="Dia da entrega"></div>
+            <div class="cart-slot-times" id="cartSlotTimes" role="group" aria-label="Horário da entrega"></div>
             <p class="cart-slot-empty" id="cartSlotEmpty" hidden>
               Sem horários livres no momento. Escolha "o quanto antes".
             </p>
