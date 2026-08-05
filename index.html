@@ -3,6 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Política de segurança de conteúdo.
+       Vai por <meta> porque em produção quem serve o site é o GitHub Pages,
+       que não deixa definir cabeçalho HTTP. O helmet do server.js só vale no
+       servidor local — verificado em 05/08/2026 que a versão publicada não
+       tinha proteção nenhuma.
+       As origens são exatamente as que o site usa: Supabase (catálogo, fotos
+       e vídeos), o painel (checkout) e o Google Fonts.
+       Nada de 'unsafe-inline': o HTML não tem nenhum atributo style= nem
+       script embutido, então script e estilo só entram por arquivo próprio.
+       Ao trocar pro domínio próprio, conferir se connect-src precisa mudar —
+       se o painel mudar de endereço, o checkout para de enviar pedido. -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    base-uri 'self';
+    object-src 'none';
+    form-action 'self';
+    script-src 'self';
+    style-src 'self' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    img-src 'self' data: https://lungknnnbddzgjvemdlp.supabase.co;
+    media-src 'self' https://lungknnnbddzgjvemdlp.supabase.co;
+    connect-src 'self' https://lungknnnbddzgjvemdlp.supabase.co https://acai-ki-delicia-admin.vercel.app;
+  ">
+
   <title>Açaí Kidelicia | Açaí premium em Perus, SP</title>
   <meta name="description" content="Açaí cremoso montado na hora em Perus, São Paulo/SP. Peça direto pelo WhatsApp, sem pagar comissão de app.">
 
@@ -947,7 +972,15 @@
     <button class="product-modal-close" id="productModalClose" aria-label="Fechar">×</button>
 
     <div class="product-modal-media" id="productModalMedia">
-      <img id="productModalImage" src="" alt="" class="product-modal-image">
+      <!-- Sem `src` vazio de propósito. `src=""` resolve pro endereço da
+           própria página, deixando o elemento em estado de imagem quebrada
+           (naturalWidth 0) desde o carregamento. Medido em 05/08/2026: o
+           Chromium não chega a fazer a requisição extra, então o custo é de
+           corretude e não de rede — mas continua sendo um <img> quebrado no
+           DOM em toda visita, que polui qualquer diagnóstico futuro.
+           O script.js só define o src quando o produto tem foto, e esconde o
+           bloco inteiro quando não tem. -->
+      <img id="productModalImage" alt="" class="product-modal-image">
     </div>
 
     <div class="product-modal-body">
