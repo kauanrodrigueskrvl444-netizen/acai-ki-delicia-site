@@ -53,7 +53,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260813">
+  <link rel="stylesheet" href="css/style.css?v=20260813b">
 
   <script type="application/ld+json">
   {
@@ -164,11 +164,17 @@
       <div class="hero-right">
         <div class="hero-image-glow" aria-hidden="true"></div>
         <div class="hero-image-frame">
+          <!-- Sem `src`: quem decide é o js/store-config.js. Com o src fixo aqui,
+               o navegador baixava ESTE arquivo (2,2 MB) e logo em seguida o
+               vídeo cadastrado no painel (2,6 MB) — dois vídeos por visita pra
+               exibir um. O arquivo local vira fallback e só carrega se as
+               configurações não chegarem. -->
           <video
             id="heroVideo"
-            src="assets/acai-hero.mp4"
+            data-lazy-src="assets/acai-hero.mp4"
             class="hero-image"
             data-video-fallback
+            preload="none"
             autoplay
             loop
             muted
@@ -197,11 +203,15 @@
       <div class="launches-grid" id="launchesGrid">
         <article class="launch-card launch-card-featured">
           <div class="launch-card-media">
+            <!-- data-lazy-src em vez de src, e sem autoplay: quem carrega é o
+                 js/launches.js quando o card chega perto da tela. Com src +
+                 autoplay o navegador baixa o vídeo no carregamento da página,
+                 mesmo estando abaixo da dobra. -->
             <video
-              src="assets/lancamento-1.mp4"
+              data-lazy-src="assets/lancamento-1.mp4"
               class="launch-media"
               data-video-fallback
-              autoplay
+              preload="none"
               loop
               muted
               playsinline
@@ -1106,10 +1116,10 @@
     </div>
   </aside>
 
-  <script src="js/config.js?v=20260813"></script>
-  <script src="js/store-config.js?v=20260813"></script>
-  <script src="js/catalog-sync.js?v=20260813"></script>
-  <script src="js/launches.js?v=20260813"></script>
-  <script src="js/script.js?v=20260813"></script>
+  <script src="js/config.js?v=20260813b"></script>
+  <script src="js/store-config.js?v=20260813b"></script>
+  <script src="js/catalog-sync.js?v=20260813b"></script>
+  <script src="js/launches.js?v=20260813b"></script>
+  <script src="js/script.js?v=20260813b"></script>
 </body>
 </html>
