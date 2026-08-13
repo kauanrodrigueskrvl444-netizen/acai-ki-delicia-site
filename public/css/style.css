@@ -260,15 +260,21 @@ img {
   transform: scale(1);
 }
 
+/* 44x44 é o mínimo confortável pra dedo. Só as três barras davam 37x29, e
+   este é o único acesso ao menu no celular: errar o toque aqui é a pessoa
+   ficar sem navegação. A área cresce, o desenho não — as barras seguem 24px. */
 .nav-toggle {
   display: none;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
   padding: 0.4rem;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .nav-toggle span {
@@ -1694,12 +1700,14 @@ img {
   font-weight: 600;
 }
 
+/* 40px, não 32: é botão usado no meio do pedido, com o dedo, pra ajustar
+   quantidade. Errar o "+" e fechar o modal por engano custa uma venda. */
 .cart-qty-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: 1px solid rgba(89, 21, 92, 0.25);
   background: none;
@@ -2015,6 +2023,28 @@ img {
 
 .footer-links a {
   transition: color 0.2s ease;
+}
+
+/* Alvo de toque só onde existe dedo. No celular esses links tinham 20px de
+   altura — entram aqui o WhatsApp, o Instagram e as avaliações do Google, que
+   o cliente realmente toca. No desktop o ponteiro é preciso e esticar tudo pra
+   44px só afrouxaria o rodapé sem ganho nenhum.
+
+   A consulta é por tipo de ponteiro, não por largura: o que decide é o dedo,
+   não o tamanho da tela — um tablet largo continua precisando do alvo maior. */
+@media (hover: none) and (pointer: coarse) {
+  .footer-links {
+    /* Os 44px já dão o respiro entre os links; sem reduzir o gap o rodapé
+       ganhava um vão exagerado. Continua valendo pros itens sem link da lista
+       (endereço e horário), que dependem só dele. */
+    gap: 0.25rem;
+  }
+
+  .footer-links a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
 }
 
 .footer-links a:hover {
