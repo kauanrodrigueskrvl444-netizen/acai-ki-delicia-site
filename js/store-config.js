@@ -139,7 +139,26 @@
       strip.hidden = true;
       return;
     }
-    strip.innerHTML = parts.join('<span class="info-strip-sep">·</span>');
+    // Esteira em vez de linha estática. No celular os quatro itens quebravam em
+    // duas ou três linhas e empurravam o hero pra baixo; passando numa linha só,
+    // a faixa ocupa altura fixa e ainda chama atenção pro valor da taxa.
+    //
+    // A animação desloca exatamente a largura de UMA cópia e reinicia, então as
+    // cópias precisam ser idênticas pra emenda não aparecer. São três (e não
+    // duas) porque em tela larga duas cópias não cobrem a janela inteira e
+    // surgiria um vazio no meio do ciclo.
+    const sep = '<span class="info-strip-sep" aria-hidden="true">·</span>';
+    // O separador vai também no fim: é ele que separa o último item de uma cópia
+    // do primeiro item da cópia seguinte.
+    const seq = parts.join(sep) + sep;
+    strip.innerHTML =
+      '<div class="info-strip-track">' +
+      `<div class="info-strip-seq">${seq}</div>` +
+      // Cópias só visuais — sem aria-hidden o leitor de tela repetiria a taxa
+      // de entrega três vezes.
+      `<div class="info-strip-seq" aria-hidden="true">${seq}</div>` +
+      `<div class="info-strip-seq" aria-hidden="true">${seq}</div>` +
+      '</div>';
     strip.hidden = false;
   }
 
