@@ -17,6 +17,46 @@
     return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
   }
 
+  /**
+   * Só baixa o vídeo quando ele chega perto da tela.
+   *
+   * Os três cards de lançamento ficam ABAIXO da dobra, mas com `src` + autoplay
+   * o navegador baixava os três no carregamento da página: ~8 MB por visita, de
+   * gente que muitas vezes nem rola até aqui. O plano gratuito do Supabase dá
+   * 5 GB de tráfego por mês — nessa conta o site estourava a cota com menos de
+   * 500 visitas, e foi o que derrubou a organização pra "exceeding usage limits".
+   *
+   * `preload="none"` sozinho não resolve: com `autoplay` presente o navegador
+   * baixa mesmo assim. O que segura é não ter `src` até a hora.
+   */
+  function carregarQuandoVisivel(video) {
+    const carregar = () => {
+      if (video.src) return;
+      video.src = video.dataset.lazySrc;
+      // play() rejeita sozinho se o navegador bloquear autoplay; o vídeo fica
+      // no primeiro quadro, que é o mesmo resultado de antes.
+      const p = video.play();
+      if (p && p.catch) p.catch(() => {});
+    };
+
+    // Sem IntersectionObserver (navegador antigo), carrega logo: melhor gastar
+    // tráfego do que deixar o card vazio.
+    if (!('IntersectionObserver' in window)) return carregar();
+
+    const obs = new IntersectionObserver(
+      (entradas) => {
+        entradas.forEach((e) => {
+          if (!e.isIntersecting) return;
+          carregar();
+          obs.disconnect();
+        });
+      },
+      // Começa a baixar um pouco antes de aparecer, pra não entrar na tela preto.
+      { rootMargin: '300px' },
+    );
+    obs.observe(video);
+  }
+
   function buildMedia(launch) {
     const media = document.createElement('div');
     media.className = 'launch-card-media';
@@ -24,13 +64,14 @@
     if (launch.video_url) {
       const video = document.createElement('video');
       video.className = 'launch-media';
-      video.src = launch.video_url;
-      video.autoplay = true;
+      video.preload = 'none';
+      video.dataset.lazySrc = launch.video_url;
       video.loop = true;
       video.muted = true;
       video.setAttribute('playsinline', '');
       video.setAttribute('aria-label', launch.title);
       media.appendChild(video);
+      carregarQuandoVisivel(video);
     } else if (launch.image_url) {
       const img = document.createElement('img');
       img.className = 'launch-media';
@@ -120,9 +161,29 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadLaunches);
-  } else {
+  /** O card fixo do HTML também vem com data-lazy-src (ver index.html). Ele é
+   *  substituído assim que o painel responde, mas até lá precisa do mesmo
+   *  tratamento — senão volta a baixar no carregamento da página.
+   *
+   *  Restrito à seção de lançamentos de propósito: o vídeo do topo também usa
+   *  data-lazy-src, mas quem manda nele é o store-config.js (o arquivo local é
+   *  fallback pra quando as configurações não chegam). Sem esse escopo, o
+   *  observador daqui via o hero visível na abertura e baixava o arquivo local
+   *  junto com o vídeo cadastrado no painel — os dois na mesma visita. */
+  function ligarLazyDoHtml() {
+    document
+      .querySelectorAll('#lancamento video[data-lazy-src]')
+      .forEach(carregarQuandoVisivel);
+  }
+
+  function iniciar() {
+    ligarLazyDoHtml();
     loadLaunches();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+  } else {
+    iniciar();
   }
 })();

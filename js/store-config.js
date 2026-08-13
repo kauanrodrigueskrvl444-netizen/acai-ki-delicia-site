@@ -67,6 +67,17 @@
     video.load();
   }
 
+  /** Fallback do vídeo do topo: o arquivo do repositório. Só entra quando as
+   *  configurações NÃO chegaram (ver o catch lá embaixo). O HTML não traz mais
+   *  `src` justamente pra este arquivo não ser baixado junto com o vídeo
+   *  cadastrado no painel — eram dois vídeos por visita pra mostrar um. */
+  function usarHeroLocal() {
+    const video = document.getElementById('heroVideo');
+    if (!video || video.getAttribute('src') || !video.dataset.lazySrc) return;
+    video.setAttribute('src', video.dataset.lazySrc);
+    video.load();
+  }
+
   // Vídeo do topo apagado no painel. Só é chamado quando as configurações
   // CHEGARAM e vieram sem vídeo — sem rede a função nem roda, e o arquivo do
   // repositório continua tocando. Sem essa distinção o cliente não conseguia
@@ -252,6 +263,9 @@
       await setupAgendamento(settings.scheduling_enabled);
     } catch {
       // Sem conexão ou config indisponível: mantém os valores fixos do HTML.
+      // O vídeo do topo é a exceção — ele não tem mais `src` no HTML, então
+      // aqui é o único lugar que devolve o arquivo do repositório.
+      usarHeroLocal();
     } finally {
       // Redesenha o carrinho com a taxa e o mínimo que acabaram de chegar.
       // No finally porque o carrinho tem que voltar ao estado coerente mesmo
