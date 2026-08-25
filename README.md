@@ -75,6 +75,31 @@ no `index.html` apontam pro domínio oficial (`acaikideliciaperus.com.br`). Se
 a URL oficial mudar de novo, **são oito lugares** — listados no comentário no
 topo do `<head>` do `index.html`.
 
+## Migração planejada do site pro Cloudflare
+
+O plano Hobby da Vercel é, pelos termos dela, só pra uso não comercial —
+e um site que fecha pedido é uso comercial. O Cloudflare não tem essa
+cláusula no plano gratuito, então o site vai pra lá. **O painel continua
+na Vercel**, porque Next.js com Server Actions roda melhor onde o
+framework nasceu.
+
+Isso também isola o estrago: o site lê catálogo, preço, horário e zonas
+direto do Supabase, e o único uso do painel é registrar o pedido em
+. Se o painel cair, o checkout abre o WhatsApp com o pedido
+montado e a loja continua vendendo — só para de registrar no sistema.
+
+Configuração no Cloudflare:
+
+- Framework preset: **None**. O repo tem  (só pra rodar local)
+  e a plataforma tenta detectar app Node por engano — foi o mesmo motivo
+  do  no - Build command: **vazio**, não há build
+- Build output directory: - Os cabeçalhos de segurança vêm do , que o Cloudflare lê
+  e o  não substitui
+
+Ordem: só migrar depois do domínio funcionando na Vercel e do checkout
+testado com um pedido real. Migrar antes disso deixa duas mudanças em voo
+ao mesmo tempo e ninguém sabe qual quebrou, se quebrar.
+
 ## Estrutura
 
 ```
