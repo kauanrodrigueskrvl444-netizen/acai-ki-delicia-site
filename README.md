@@ -85,16 +85,18 @@ framework nasceu.
 
 Isso também isola o estrago: o site lê catálogo, preço, horário e zonas
 direto do Supabase, e o único uso do painel é registrar o pedido em
-. Se o painel cair, o checkout abre o WhatsApp com o pedido
+`/api/pedido`. Se o painel cair, o checkout abre o WhatsApp com o pedido
 montado e a loja continua vendendo — só para de registrar no sistema.
 
 Configuração no Cloudflare:
 
-- Framework preset: **None**. O repo tem  (só pra rodar local)
-  e a plataforma tenta detectar app Node por engano — foi o mesmo motivo
-  do  no - Build command: **vazio**, não há build
-- Build output directory: - Os cabeçalhos de segurança vêm do , que o Cloudflare lê
-  e o  não substitui
+- Framework preset: **None**. O repo tem `server.js` (só pra rodar local)
+  e a plataforma tenta detectar app Node por engano — é o mesmo motivo do
+  `framework: null` no `vercel.json`
+- Build command: **vazio**, não há build
+- Build output directory: `public`
+- Os cabeçalhos de segurança vêm do `public/_headers`, que o Cloudflare lê
+  e que o `vercel.json` não substitui
 
 Ordem: só migrar depois do domínio funcionando na Vercel e do checkout
 testado com um pedido real. Migrar antes disso deixa duas mudanças em voo
