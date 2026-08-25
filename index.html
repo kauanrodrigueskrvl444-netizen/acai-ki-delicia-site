@@ -5,16 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Política de segurança de conteúdo.
-       Vai por <meta> porque em produção quem serve o site é o GitHub Pages,
-       que não deixa definir cabeçalho HTTP. O helmet do server.js só vale no
+       Vai por <meta> e não por cabeçalho HTTP porque a mesma página é servida
+       pela Vercel e pelo GitHub Pages, e o Pages não deixa definir cabeçalho —
+       no <meta> a proteção vale nos dois.
+       ATENÇÃO: esta política tem uma CÓPIA no vercel.json, na mesma ordem de
+       diretivas. As duas precisam mudar juntas — quando as duas chegam, o
+       navegador aplica a INTERSEÇÃO, então uma esquecida silenciosamente
+       bloqueia o que a outra libera. Única diferença legítima: frame-ancestors
+       existe só no vercel.json, porque o navegador ignora essa diretiva no
+       <meta>. O helmet do server.js só vale no
        servidor local — verificado em 05/08/2026 que a versão publicada não
        tinha proteção nenhuma.
        As origens são exatamente as que o site usa: Supabase (catálogo, fotos
        e vídeos), o painel (checkout) e o Google Fonts.
        Nada de 'unsafe-inline': o HTML não tem nenhum atributo style= nem
        script embutido, então script e estilo só entram por arquivo próprio.
-       Ao trocar pro domínio próprio, conferir se connect-src precisa mudar —
-       se o painel mudar de endereço, o checkout para de enviar pedido. -->
+       Conferido em 25/08/2026, na troca pro domínio próprio: connect-src não
+       mudou porque o painel continua no mesmo endereço. Se o painel mudar de
+       endereço, o checkout para de enviar pedido. -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     base-uri 'self';
@@ -31,11 +39,14 @@
   <title>Açaí Kidelicia | Açaí premium em Perus, SP</title>
   <meta name="description" content="Açaí cremoso montado na hora em Perus, São Paulo/SP. Peça direto pelo WhatsApp, sem pagar comissão de app.">
 
-  <!-- URL oficial: GitHub Pages, decisão confirmada em 31/07/2026 (sem domínio
-       próprio comprado ainda). Quando o domínio próprio existir, trocar aqui
-       E em robots.txt (linha do Sitemap) E em sitemap.xml (<loc>) E nas tags
-       og:url / og:image / twitter:image abaixo E no JSON-LD (url / image). -->
-  <link rel="canonical" href="https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/">
+  <!-- URL oficial: domínio próprio acaikideliciaperus.com.br, servido pela
+       Vercel (25/08/2026). O GitHub Pages continua no ar como espelho, mas
+       serve esta mesma página com canonical apontando pra cá — é de propósito,
+       concentra o SEO num endereço só. Se a URL oficial mudar de novo, são
+       oito lugares: aqui E em robots.txt (linha do Sitemap) E em sitemap.xml
+       (<loc>) E nas tags og:url / og:image / twitter:image abaixo E no
+       JSON-LD (url / image). -->
+  <link rel="canonical" href="https://acaikideliciaperus.com.br/">
 
   <link rel="icon" type="image/png" href="assets/logo.png">
   <link rel="apple-touch-icon" href="assets/logo.png">
@@ -44,24 +55,30 @@
   <meta property="og:site_name" content="Açaí Kidelicia">
   <meta property="og:title" content="Açaí Kidelicia">
   <meta property="og:description" content="Açaí cremoso montado na hora em Perus, São Paulo/SP. Peça direto pelo WhatsApp, sem pagar comissão de app.">
-  <meta property="og:image" content="https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/assets/logo.png">
-  <meta property="og:url" content="https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/">
+  <meta property="og:image" content="https://acaikideliciaperus.com.br/assets/logo.png">
+  <meta property="og:url" content="https://acaikideliciaperus.com.br/">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Açaí Kidelicia">
   <meta name="twitter:description" content="Açaí cremoso montado na hora em Perus, São Paulo/SP. Peça direto pelo WhatsApp, sem pagar comissão de app.">
-  <meta name="twitter:image" content="https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/assets/logo.png">
+  <meta name="twitter:image" content="https://acaikideliciaperus.com.br/assets/logo.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=20260813b">
 
+  <!-- Dados estruturados do negócio. Não voltar a incluir "aggregateRating"
+       aqui: marcar a própria nota no próprio site, quando as avaliações são
+       coletadas e exibidas no Google e não nesta página, é auto-atribuição —
+       a política de dados estruturados do Google não aceita e o caso se
+       enquadra em marcação enganosa. A nota segue escrita na página como
+       texto normal, que é permitido; o que não pode é a marcação. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "FoodEstablishment",
     "name": "Açaí Kidelicia",
-    "image": "https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/assets/logo.png",
-    "url": "https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/",
+    "image": "https://acaikideliciaperus.com.br/assets/logo.png",
+    "url": "https://acaikideliciaperus.com.br/",
     "telephone": "+5511993996423",
     "servesCuisine": "Açaí",
     "priceRange": "R$ 3 - R$ 110",
@@ -69,6 +86,8 @@
     "paymentAccepted": "Pix, Dinheiro, Cartão",
     "address": {
       "@type": "PostalAddress",
+      "streetAddress": "R. Cavalo Marinho, 451 - Jardim Adelfiore",
+      "postalCode": "05223-050",
       "addressLocality": "Perus",
       "addressRegion": "SP",
       "addressCountry": "BR"
@@ -80,11 +99,6 @@
       ],
       "opens": "11:00",
       "closes": "03:00"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "35"
     },
     "sameAs": [
       "https://www.instagram.com/acaikidelicia.sabor/",
@@ -155,8 +169,8 @@
         <div class="hero-stats">
           <a href="https://share.google/HC0OF8GgoI82PgGcq" target="_blank" rel="noopener" class="hero-stat hero-stat-link">
             <span class="hero-stat-stars" aria-hidden="true">★★★★★</span>
-            <span class="hero-stat-value">4.8</span>
-            <span class="hero-stat-label">35 avaliações verificadas no Google</span>
+            <span class="hero-stat-value">4,8</span>
+            <span class="hero-stat-label">mais de 30 avaliações verificadas no Google</span>
           </a>
         </div>
       </div>
@@ -260,7 +274,7 @@
             <article class="product-card" data-price="29.99">
               <div class="product-card-media">
                 <span class="product-card-badge"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22a7 7 0 0 0 7-7c0-5-4-6-4-10 0 0-3 1.5-3 5 0 1.6-1 2.5-2 2.5S8 11 8 9c0 0-3 2.4-3 6a7 7 0 0 0 7 7Z"/></svg> Mais Vendido</span>
-                <img src="assets/Cremosochocopaçoca.jpg" alt="Açaí Chocopaçoca" class="product-card-image" data-image-fallback>
+                <img src="assets/Cremosochocopaçoca.jpg" alt="Açaí Chocopaçoca" class="product-card-image" data-image-fallback loading="lazy" decoding="async">
                 <span class="product-card-placeholder-text">Foto entra aqui</span>
                 <span class="product-card-size">500ml</span>
               </div>
@@ -276,7 +290,7 @@
 
             <article class="product-card" data-price="15.59">
               <div class="product-card-media">
-                <span class="product-card-badge">Favorito</span>                <img src="assets/CremosaVitamina500ml.jpg" alt="Cremosa Vitamina de Açaí" class="product-card-image" data-image-fallback>
+                <span class="product-card-badge">Favorito</span>                <img src="assets/CremosaVitamina500ml.jpg" alt="Cremosa Vitamina de Açaí" class="product-card-image" data-image-fallback loading="lazy" decoding="async">
                 <span class="product-card-placeholder-text">Foto entra aqui</span>
                 <span class="product-card-size">500ml</span>
               </div>
@@ -292,7 +306,7 @@
 
             <article class="product-card" data-price="39.00">
               <div class="product-card-media">
-                <span class="product-card-badge">Premium</span>                <img src="assets/FerreroRocher770ml.jpg" alt="Ferrero Rocher" class="product-card-image" data-image-fallback>
+                <span class="product-card-badge">Premium</span>                <img src="assets/FerreroRocher770ml.jpg" alt="Ferrero Rocher" class="product-card-image" data-image-fallback loading="lazy" decoding="async">
                 <span class="product-card-placeholder-text">Foto entra aqui</span>
                 <span class="product-card-size">770ml</span>
               </div>
@@ -312,49 +326,49 @@
           <h3 class="menu-category-title">Açaí</h3>
           <div class="menu-list">
             <div class="menu-item" data-price="30.00">
-              <img src="assets/2deliciososaçaistrufadosleitinho.jpg" alt="2 açaís trufados de leitinho com morango 330ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/2deliciososaçaistrufadosleitinho.jpg" alt="2 açaís trufados de leitinho com morango 330ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">2 açaís trufados de leitinho com morango 330ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$50,00</s><strong>R$30,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="33.60">
-              <img src="assets/2deliciososaçaistrufados.jpg" alt="2 açaís trufados de doce de leite, banana e paçoca" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/2deliciososaçaistrufados.jpg" alt="2 açaís trufados de doce de leite, banana e paçoca" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">2 açaís trufados de doce de leite, banana e paçoca</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$70,00</s><strong>R$33,60</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="29.99">
-              <img src="assets/Cremosochocopaçoca.jpg" alt="Cremoso açaí chocopaçoca 500ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Cremosochocopaçoca.jpg" alt="Cremoso açaí chocopaçoca 500ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Cremoso açaí chocopaçoca 500ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$74,99</s><strong>R$29,99</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="24.85">
-              <img src="assets/Cremosoaçai.jpg" alt="Cremoso açaí no copo 400ml, 2 camadas" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Cremosoaçai.jpg" alt="Cremoso açaí no copo 400ml, 2 camadas" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Cremoso açaí no copo 400ml, 2 camadas</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$35,50</s><strong>R$24,85</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="16.00">
-              <img src="assets/TurbineSeuAÇAI.png" alt="Açaí tradicional turbine seu açaí" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/TurbineSeuAÇAI.png" alt="Açaí tradicional turbine seu açaí" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Açaí tradicional "turbine seu açaí"</span>
               <span class="menu-item-price"><strong>R$16,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="48.95">
-              <img src="assets/2trufadoschocolatudo.jpg" alt="2 trufados de chocolatudo 400ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/2trufadoschocolatudo.jpg" alt="2 trufados de chocolatudo 400ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">2 trufados de chocolatudo 400ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$89,00</s><strong>R$48,95</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="27.00">
-              <img src="assets/CasadinhoAcaiCupuacu.jpg" alt="Açaí casadinho (açaí + cupuaçu)" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/CasadinhoAcaiCupuacu.jpg" alt="Açaí casadinho (açaí + cupuaçu)" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Açaí casadinho (açaí + cupuaçu)</span>
               <span class="menu-item-price"><strong>R$27,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="16.00">
-              <img src="assets/Cupuaçu.jpg" alt="Cupuaçu" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Cupuaçu.jpg" alt="Cupuaçu" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Cupuaçu</span>
               <span class="menu-item-price"><strong>R$16,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
@@ -366,25 +380,25 @@
           <h3 class="menu-category-title">Milkshakes</h3>
           <div class="menu-list">
             <div class="menu-item" data-price="16.00">
-              <img src="assets/MilkshakeOvomaltine.png" alt="Milkshake de ovomaltine 400ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/MilkshakeOvomaltine.png" alt="Milkshake de ovomaltine 400ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Milkshake de ovomaltine 400ml</span>
               <span class="menu-item-price"><strong>R$16,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="16.00">
-              <img src="assets/Milkshakemorango300ml.jpg" alt="Milkshake de morango 300ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Milkshakemorango300ml.jpg" alt="Milkshake de morango 300ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Milkshake de morango 300ml</span>
               <span class="menu-item-price"><strong>R$16,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="22.00">
-              <img src="assets/Milkshakechocolate400ml.jpg" alt="Milkshake de chocolate 400ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Milkshakechocolate400ml.jpg" alt="Milkshake de chocolate 400ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Milkshake de chocolate 400ml</span>
               <span class="menu-item-price"><strong>R$22,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="22.00">
-              <img src="assets/Milkshakemaracuja400ml.jpg" alt="Milkshake de maracujá" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Milkshakemaracuja400ml.jpg" alt="Milkshake de maracujá" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Milkshake de maracujá</span>
               <span class="menu-item-price"><strong>R$22,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
@@ -399,7 +413,7 @@
             <article class="product-card" data-price="30.00">
               <div class="product-card-media">
                 <span class="product-card-badge">Combo</span>
-                <img src="assets/2deliciososaçaistrufadosleitinho.jpg" alt="2 Açaís Trufados de Leitinho com Morango" class="product-card-image" data-image-fallback>
+                <img src="assets/2deliciososaçaistrufadosleitinho.jpg" alt="2 Açaís Trufados de Leitinho com Morango" class="product-card-image" data-image-fallback loading="lazy" decoding="async">
                 <span class="product-card-placeholder-text">Foto entra aqui</span>
                 <span class="product-card-size">2× 330ml</span>
               </div>
@@ -416,7 +430,7 @@
             <article class="product-card" data-price="48.95">
               <div class="product-card-media">
                 <span class="product-card-badge">Combo</span>
-                <img src="assets/2trufadoschocolatudo.jpg" alt="2 Trufados de Chocolatudo" class="product-card-image" data-image-fallback>
+                <img src="assets/2trufadoschocolatudo.jpg" alt="2 Trufados de Chocolatudo" class="product-card-image" data-image-fallback loading="lazy" decoding="async">
                 <span class="product-card-placeholder-text">Foto entra aqui</span>
                 <span class="product-card-size">2× 400ml</span>
               </div>
@@ -433,7 +447,7 @@
             <article class="product-card" data-price="70.20">
               <div class="product-card-media">
                 <span class="product-card-badge">Combo</span>
-                <img src="assets/2deliciosasMarmitasde1000ml.jpg" alt="2 Marmitas de 1000ml" class="product-card-image" data-image-fallback>
+                <img src="assets/2deliciosasMarmitasde1000ml.jpg" alt="2 Marmitas de 1000ml" class="product-card-image" data-image-fallback loading="lazy" decoding="async">
                 <span class="product-card-placeholder-text">Foto entra aqui</span>
                 <span class="product-card-size">2× 1000ml</span>
               </div>
@@ -453,25 +467,25 @@
           <h3 class="menu-category-title">Vitaminas</h3>
           <div class="menu-list">
             <div class="menu-item" data-price="15.59">
-              <img src="assets/CremosaVitamina500ml.jpg" alt="Cremosa vitamina de açaí 500ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/CremosaVitamina500ml.jpg" alt="Cremosa vitamina de açaí 500ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Cremosa vitamina de açaí 500ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$19,49</s><strong>R$15,59</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="40.00">
-              <img src="assets/2cremosasVitaminasNinho.jpg" alt="2 cremosas vitaminas ninho, nutella e morango 300ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/2cremosasVitaminasNinho.jpg" alt="2 cremosas vitaminas ninho, nutella e morango 300ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">2 cremosas vitaminas ninho, nutella e morango 300ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$80,00</s><strong>R$40,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="30.00">
-              <img src="assets/CremosaVimtaminaAçai1000ml.jpg" alt="Cremosa vitamina de açaí 1000ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/CremosaVimtaminaAçai1000ml.jpg" alt="Cremosa vitamina de açaí 1000ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Cremosa vitamina de açaí 1000ml</span>
               <span class="menu-item-price"><strong>R$30,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="22.50">
-              <img src="assets/VitaminaCupuaçu.jpg" alt="Cremosa vitamina de cupuaçu" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/VitaminaCupuaçu.jpg" alt="Cremosa vitamina de cupuaçu" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Cremosa vitamina de cupuaçu</span>
               <span class="menu-item-price"><strong>R$22,50</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
@@ -483,31 +497,31 @@
           <h3 class="menu-category-title">Potes Premium</h3>
           <div class="menu-list">
             <div class="menu-item" data-price="39.00">
-              <img src="assets/FerreroRocher770ml.jpg" alt="Ferrero Rocher 770ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/FerreroRocher770ml.jpg" alt="Ferrero Rocher 770ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Ferrero Rocher 770ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$49,00</s><strong>R$39,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="30.40">
-              <img src="assets/Nutella400ml.jpg" alt="Nutella 400ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Nutella400ml.jpg" alt="Nutella 400ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Nutella 400ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$38,00</s><strong>R$30,40</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="52.49">
-              <img src="assets/CremeNinhoNutellaeMorango.jpg" alt="Creme ninho, nutella e morango" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/CremeNinhoNutellaeMorango.jpg" alt="Creme ninho, nutella e morango" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Creme ninho, nutella e morango</span>
               <span class="menu-item-price"><strong>R$52,49</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="35.00">
-              <img src="assets/TrufadoBueno.jpg" alt="Trufado Bueno 500ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/TrufadoBueno.jpg" alt="Trufado Bueno 500ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Trufado Bueno 500ml</span>
               <span class="menu-item-price"><strong>R$35,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="28.00">
-              <img src="assets/OuroBranco.jpg" alt="Ouro branco 300ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/OuroBranco.jpg" alt="Ouro branco 300ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Ouro branco 300ml</span>
               <span class="menu-item-price"><strong>R$28,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
@@ -519,13 +533,13 @@
           <h3 class="menu-category-title">Marmitas</h3>
           <div class="menu-list">
             <div class="menu-item" data-price="34.65">
-              <img src="assets/Marmita1L.jpg" alt="Marmita 1L" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Marmita1L.jpg" alt="Marmita 1L" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Marmita 1L</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$55,00</s><strong>R$34,65</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="70.20">
-              <img src="assets/2deliciosasMarmitasde1000ml.jpg" alt="2 marmitas de 1000ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/2deliciosasMarmitasde1000ml.jpg" alt="2 marmitas de 1000ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">2 marmitas de 1000ml</span>
               <span class="menu-item-price"><s class="menu-item-price-old">R$108,00</s><strong>R$70,20</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
@@ -537,13 +551,13 @@
           <h3 class="menu-category-title">Flurrys</h3>
           <div class="menu-list">
             <div class="menu-item" data-price="22.00">
-              <img src="assets/FlurryMMsCaramelo.png" alt="Flurry M&amp;M's com caramelo" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/FlurryMMsCaramelo.png" alt="Flurry M&amp;M's com caramelo" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Flurry M&amp;M's com caramelo</span>
               <span class="menu-item-price"><strong>R$22,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="20.00">
-              <img src="assets/FlurryPistacheAmendoim400ml.png" alt="Flurry pistache com amendoim 400ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/FlurryPistacheAmendoim400ml.png" alt="Flurry pistache com amendoim 400ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Flurry pistache com amendoim 400ml</span>
               <span class="menu-item-price"><strong>R$20,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
@@ -555,31 +569,31 @@
           <h3 class="menu-category-title">Bebidas &amp; Extras</h3>
           <div class="menu-list">
             <div class="menu-item" data-price="7.99">
-              <img src="assets/Coca.jpg" alt="Coca-Cola 310ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Coca.jpg" alt="Coca-Cola 310ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Coca-Cola 310ml</span>
               <span class="menu-item-price"><strong>R$7,99</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="6.49">
-              <img src="assets/Cocazero.jpg" alt="Coca-Cola Zero 310ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Cocazero.jpg" alt="Coca-Cola Zero 310ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Coca-Cola Zero 310ml</span>
               <span class="menu-item-price"><strong>R$6,49</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="6.49">
-              <img src="assets/Guarana.jpg" alt="Guaraná Antarctica 350ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Guarana.jpg" alt="Guaraná Antarctica 350ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Guaraná Antarctica 350ml</span>
               <span class="menu-item-price"><strong>R$6,49</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="3.49">
-              <img src="assets/Agua.jpg" alt="Água mineral sem gás 500ml" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/Agua.jpg" alt="Água mineral sem gás 500ml" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">Água mineral sem gás 500ml</span>
               <span class="menu-item-price"><strong>R$3,49</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
             </div>
             <div class="menu-item" data-price="8.00">
-              <img src="assets/KitKat.jpg" alt="KitKat" class="menu-item-thumb" data-image-fallback>
+              <img src="assets/KitKat.jpg" alt="KitKat" class="menu-item-thumb" data-image-fallback loading="lazy" decoding="async" width="56" height="56">
               <span class="menu-item-name">KitKat</span>
               <span class="menu-item-price"><strong>R$8,00</strong></span>
               <button class="menu-item-add" data-add-to-cart aria-label="Adicionar ao carrinho">+</button>
@@ -820,7 +834,7 @@
         <article class="product-card" data-price="40.00">
           <div class="product-card-media">
             <span class="product-card-badge">-50%</span>
-            <img src="assets/2cremosasVitaminasNinho.jpg" alt="2 Cremosas Vitaminas Ninho, Nutella e Morango" class="product-card-image" data-image-fallback>
+            <img src="assets/2cremosasVitaminasNinho.jpg" alt="2 Cremosas Vitaminas Ninho, Nutella e Morango" class="product-card-image" data-image-fallback loading="lazy" decoding="async">
             <span class="product-card-placeholder-text">Foto entra aqui</span>
             <span class="product-card-size">2× 300ml</span>
           </div>
@@ -837,7 +851,7 @@
         <article class="product-card" data-price="30.40">
           <div class="product-card-media">
             <span class="product-card-badge">Promoção</span>
-            <img src="assets/Nutella400ml.jpg" alt="Nutella 400ml" class="product-card-image" data-image-fallback>
+            <img src="assets/Nutella400ml.jpg" alt="Nutella 400ml" class="product-card-image" data-image-fallback loading="lazy" decoding="async">
             <span class="product-card-placeholder-text">Foto entra aqui</span>
             <span class="product-card-size">400ml</span>
           </div>
@@ -854,7 +868,7 @@
         <article class="product-card" data-price="34.65">
           <div class="product-card-media">
             <span class="product-card-badge">Promoção</span>
-            <img src="assets/Marmita1L.jpg" alt="Marmita 1L" class="product-card-image" data-image-fallback>
+            <img src="assets/Marmita1L.jpg" alt="Marmita 1L" class="product-card-image" data-image-fallback loading="lazy" decoding="async">
             <span class="product-card-placeholder-text">Foto entra aqui</span>
             <span class="product-card-size">1L</span>
           </div>
@@ -904,11 +918,11 @@
           </div>
           <div class="about-fact">
             <span class="about-fact-title">Horário</span>
-            <span class="about-fact-desc">Todos os dias, das 11h à 3h da madrugada</span>
+            <span class="about-fact-desc">Todos os dias, das 11h às 3h da madrugada</span>
           </div>
           <div class="about-fact">
             <span class="about-fact-title">Avaliação</span>
-            <span class="about-fact-desc">4,8 <svg class="icon icon-solid" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 2.6 2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95L12 2.6Z"/></svg> no Google, com 35 avaliações verificadas</span>
+            <span class="about-fact-desc">4,8 <svg class="icon icon-solid" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 2.6 2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95L12 2.6Z"/></svg> no Google, com mais de 30 avaliações verificadas</span>
           </div>
         </div>
         </div>
@@ -926,8 +940,8 @@
     <div class="social-proof-inner">
       <div class="social-proof-item">
         <span class="social-proof-stars" aria-hidden="true">★★★★★</span>
-        <span class="social-proof-value">4.8</span>
-        <span class="social-proof-label">35 avaliações verificadas no Google</span>
+        <span class="social-proof-value">4,8</span>
+        <span class="social-proof-label">mais de 30 avaliações verificadas no Google</span>
         <a href="https://share.google/HC0OF8GgoI82PgGcq" target="_blank" rel="noopener" class="btn-ghost social-proof-btn">Ver avaliações</a>
       </div>
 
@@ -967,7 +981,7 @@
           <li id="footerTiktok" hidden><a href="#" target="_blank" rel="noopener">TikTok</a></li>
           <li><a href="https://share.google/HC0OF8GgoI82PgGcq" target="_blank" rel="noopener">Avaliações no Google</a></li>
           <li id="footerAddress">Perus, São Paulo/SP</li>
-          <li id="footerHours">Todos os dias, das 11h à 3h da madrugada</li>
+          <li id="footerHours">Todos os dias, das 11h às 3h da madrugada</li>
         </ul>
       </div>
     </div>
@@ -990,7 +1004,7 @@
            DOM em toda visita, que polui qualquer diagnóstico futuro.
            O script.js só define o src quando o produto tem foto, e esconde o
            bloco inteiro quando não tem. -->
-      <img id="productModalImage" alt="" class="product-modal-image">
+      <img id="productModalImage" alt="" class="product-modal-image" loading="lazy" decoding="async">
     </div>
 
     <div class="product-modal-body">
