@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/</loc>
+    <loc>https://acaikideliciaperus.com.br/</loc>
+    <!-- Atualizar a cada publicação que muda o conteúdo da página. É por este
+         campo que o Google decide se vale revisitar; changefreq e priority
+         abaixo ele ignora há anos, ficam só pro Bing. -->
+    <lastmod>2026-08-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>

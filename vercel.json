@@ -16,7 +16,7 @@
         { "key": "Referrer-Policy", "value": "no-referrer" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; img-src 'self' data: https://lungknnnbddzgjvemdlp.supabase.co; media-src 'self' https://lungknnnbddzgjvemdlp.supabase.co; connect-src 'self' https://lungknnnbddzgjvemdlp.supabase.co https://*.vercel.app; base-uri 'self'; object-src 'none'; frame-ancestors 'self'"
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://lungknnnbddzgjvemdlp.supabase.co; media-src 'self' https://lungknnnbddzgjvemdlp.supabase.co; connect-src 'self' https://lungknnnbddzgjvemdlp.supabase.co https://acai-ki-delicia-admin.vercel.app; frame-ancestors 'self'"
         }
       ]
     }

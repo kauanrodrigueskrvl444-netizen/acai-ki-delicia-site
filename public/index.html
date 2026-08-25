@@ -5,16 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Política de segurança de conteúdo.
-       Vai por <meta> porque em produção quem serve o site é o GitHub Pages,
-       que não deixa definir cabeçalho HTTP. O helmet do server.js só vale no
+       Vai por <meta> e não por cabeçalho HTTP porque a mesma página é servida
+       pela Vercel e pelo GitHub Pages, e o Pages não deixa definir cabeçalho —
+       no <meta> a proteção vale nos dois.
+       ATENÇÃO: esta política tem uma CÓPIA no vercel.json, na mesma ordem de
+       diretivas. As duas precisam mudar juntas — quando as duas chegam, o
+       navegador aplica a INTERSEÇÃO, então uma esquecida silenciosamente
+       bloqueia o que a outra libera. Única diferença legítima: frame-ancestors
+       existe só no vercel.json, porque o navegador ignora essa diretiva no
+       <meta>. O helmet do server.js só vale no
        servidor local — verificado em 05/08/2026 que a versão publicada não
        tinha proteção nenhuma.
        As origens são exatamente as que o site usa: Supabase (catálogo, fotos
        e vídeos), o painel (checkout) e o Google Fonts.
        Nada de 'unsafe-inline': o HTML não tem nenhum atributo style= nem
        script embutido, então script e estilo só entram por arquivo próprio.
-       Ao trocar pro domínio próprio, conferir se connect-src precisa mudar —
-       se o painel mudar de endereço, o checkout para de enviar pedido. -->
+       Conferido em 25/08/2026, na troca pro domínio próprio: connect-src não
+       mudou porque o painel continua no mesmo endereço. Se o painel mudar de
+       endereço, o checkout para de enviar pedido. -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     base-uri 'self';
@@ -31,11 +39,14 @@
   <title>Açaí Kidelicia | Açaí premium em Perus, SP</title>
   <meta name="description" content="Açaí cremoso montado na hora em Perus, São Paulo/SP. Peça direto pelo WhatsApp, sem pagar comissão de app.">
 
-  <!-- URL oficial: GitHub Pages, decisão confirmada em 31/07/2026 (sem domínio
-       próprio comprado ainda). Quando o domínio próprio existir, trocar aqui
-       E em robots.txt (linha do Sitemap) E em sitemap.xml (<loc>) E nas tags
-       og:url / og:image / twitter:image abaixo E no JSON-LD (url / image). -->
-  <link rel="canonical" href="https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/">
+  <!-- URL oficial: domínio próprio acaikideliciaperus.com.br, servido pela
+       Vercel (25/08/2026). O GitHub Pages continua no ar como espelho, mas
+       serve esta mesma página com canonical apontando pra cá — é de propósito,
+       concentra o SEO num endereço só. Se a URL oficial mudar de novo, são
+       oito lugares: aqui E em robots.txt (linha do Sitemap) E em sitemap.xml
+       (<loc>) E nas tags og:url / og:image / twitter:image abaixo E no
+       JSON-LD (url / image). -->
+  <link rel="canonical" href="https://acaikideliciaperus.com.br/">
 
   <link rel="icon" type="image/png" href="assets/logo.png">
   <link rel="apple-touch-icon" href="assets/logo.png">
@@ -44,24 +55,30 @@
   <meta property="og:site_name" content="Açaí Kidelicia">
   <meta property="og:title" content="Açaí Kidelicia">
   <meta property="og:description" content="Açaí cremoso montado na hora em Perus, São Paulo/SP. Peça direto pelo WhatsApp, sem pagar comissão de app.">
-  <meta property="og:image" content="https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/assets/logo.png">
-  <meta property="og:url" content="https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/">
+  <meta property="og:image" content="https://acaikideliciaperus.com.br/assets/logo.png">
+  <meta property="og:url" content="https://acaikideliciaperus.com.br/">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Açaí Kidelicia">
   <meta name="twitter:description" content="Açaí cremoso montado na hora em Perus, São Paulo/SP. Peça direto pelo WhatsApp, sem pagar comissão de app.">
-  <meta name="twitter:image" content="https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/assets/logo.png">
+  <meta name="twitter:image" content="https://acaikideliciaperus.com.br/assets/logo.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=20260813b">
 
+  <!-- Dados estruturados do negócio. Não voltar a incluir "aggregateRating"
+       aqui: marcar a própria nota no próprio site, quando as avaliações são
+       coletadas e exibidas no Google e não nesta página, é auto-atribuição —
+       a política de dados estruturados do Google não aceita e o caso se
+       enquadra em marcação enganosa. A nota segue escrita na página como
+       texto normal, que é permitido; o que não pode é a marcação. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "FoodEstablishment",
     "name": "Açaí Kidelicia",
-    "image": "https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/assets/logo.png",
-    "url": "https://kauanrodrigueskrvl444-netizen.github.io/acai-ki-delicia-site/",
+    "image": "https://acaikideliciaperus.com.br/assets/logo.png",
+    "url": "https://acaikideliciaperus.com.br/",
     "telephone": "+5511993996423",
     "servesCuisine": "Açaí",
     "priceRange": "R$ 3 - R$ 110",
@@ -69,6 +86,7 @@
     "paymentAccepted": "Pix, Dinheiro, Cartão",
     "address": {
       "@type": "PostalAddress",
+      "streetAddress": "R. Cavalo Marinho, 451 - Jardim Adelfiore",
       "addressLocality": "Perus",
       "addressRegion": "SP",
       "addressCountry": "BR"
@@ -80,11 +98,6 @@
       ],
       "opens": "11:00",
       "closes": "03:00"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "35"
     },
     "sameAs": [
       "https://www.instagram.com/acaikidelicia.sabor/",
@@ -155,8 +168,8 @@
         <div class="hero-stats">
           <a href="https://share.google/HC0OF8GgoI82PgGcq" target="_blank" rel="noopener" class="hero-stat hero-stat-link">
             <span class="hero-stat-stars" aria-hidden="true">★★★★★</span>
-            <span class="hero-stat-value">4.8</span>
-            <span class="hero-stat-label">35 avaliações verificadas no Google</span>
+            <span class="hero-stat-value">4,8</span>
+            <span class="hero-stat-label">mais de 30 avaliações verificadas no Google</span>
           </a>
         </div>
       </div>
@@ -904,11 +917,11 @@
           </div>
           <div class="about-fact">
             <span class="about-fact-title">Horário</span>
-            <span class="about-fact-desc">Todos os dias, das 11h à 3h da madrugada</span>
+            <span class="about-fact-desc">Todos os dias, das 11h às 3h da madrugada</span>
           </div>
           <div class="about-fact">
             <span class="about-fact-title">Avaliação</span>
-            <span class="about-fact-desc">4,8 <svg class="icon icon-solid" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 2.6 2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95L12 2.6Z"/></svg> no Google, com 35 avaliações verificadas</span>
+            <span class="about-fact-desc">4,8 <svg class="icon icon-solid" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 2.6 2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95L12 2.6Z"/></svg> no Google, com mais de 30 avaliações verificadas</span>
           </div>
         </div>
         </div>
@@ -926,8 +939,8 @@
     <div class="social-proof-inner">
       <div class="social-proof-item">
         <span class="social-proof-stars" aria-hidden="true">★★★★★</span>
-        <span class="social-proof-value">4.8</span>
-        <span class="social-proof-label">35 avaliações verificadas no Google</span>
+        <span class="social-proof-value">4,8</span>
+        <span class="social-proof-label">mais de 30 avaliações verificadas no Google</span>
         <a href="https://share.google/HC0OF8GgoI82PgGcq" target="_blank" rel="noopener" class="btn-ghost social-proof-btn">Ver avaliações</a>
       </div>
 
@@ -967,7 +980,7 @@
           <li id="footerTiktok" hidden><a href="#" target="_blank" rel="noopener">TikTok</a></li>
           <li><a href="https://share.google/HC0OF8GgoI82PgGcq" target="_blank" rel="noopener">Avaliações no Google</a></li>
           <li id="footerAddress">Perus, São Paulo/SP</li>
-          <li id="footerHours">Todos os dias, das 11h à 3h da madrugada</li>
+          <li id="footerHours">Todos os dias, das 11h às 3h da madrugada</li>
         </ul>
       </div>
     </div>

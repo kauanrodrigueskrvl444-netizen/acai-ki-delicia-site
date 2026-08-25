@@ -45,22 +45,35 @@ O único endereço configurável é o do painel, em `public/js/config.js`
 
 Três destinos publicados hoje, todos a partir do mesmo `public/`:
 
-1. **GitHub Pages** (canônico) — branch `gh-pages`, publicada automaticamente
+1. **Vercel** (canônico) — serve o domínio próprio
+   `https://acaikideliciaperus.com.br`, com deploy automático a cada push em
+   `master`. `vercel.json` força `framework: null` porque o repo tem
+   `server.js` (só pra rodar local) que a Vercel tentaria detectar como
+   servidor Node por engano. O DNS do domínio fica no painel do Registro.br
+   (nameservers `auto.dns.br`), não na Vercel.
+2. **GitHub Pages** (espelho) — branch `gh-pages`, publicada automaticamente
    a cada push em `master` que muda algo em `public/`
-   (`.github/workflows/deploy-gh-pages.yml`). É a URL oficial enquanto não
-   houver domínio próprio. Antes de 01/08/2026 esse passo era manual e ficou
-   esquecido por dias — checar `gh run list` se desconfiar que algo não foi
-   ao ar.
-2. **Vercel** — projeto próprio (`acai-ki-delicia-site.vercel.app`), deploy
-   automático a cada push em `master`. `vercel.json` força `framework: null`
-   porque o repo tem `server.js` (só pra rodar local) que a Vercel tentaria
-   detectar como servidor Node por engano.
+   (`.github/workflows/deploy-gh-pages.yml`). Era a URL oficial até
+   25/08/2026; hoje continua no ar servindo a mesma página, com `canonical`
+   apontando pro domínio próprio. **Não criar arquivo `CNAME` em `public/`:**
+   isso faria o Pages reivindicar o domínio e brigar com a Vercel pelo mesmo
+   nome. Antes de 01/08/2026 esse passo era manual e ficou esquecido por dias
+   — checar `gh run list` se desconfiar que algo não foi ao ar.
+
+   **Este espelho tem data pra sair.** Nele não chegam `X-Content-Type-Options`
+   nem `X-Frame-Options`: o Pages não deixa definir cabeçalho, então lá só vale
+   a política do `<meta>`. Enquanto ele existir, também são duas cópias do CSP
+   pra manter em sincronia. Assim que o domínio próprio estiver indexado e o
+   tráfego tiver migrado — dá pra confirmar na Search Console — apagar o
+   `deploy-gh-pages.yml` e a branch `gh-pages`, e deixar o CSP só no
+   `vercel.json`. Não fazer isso antes: até lá o Pages é a rede de segurança
+   se o DNS do domínio novo falhar.
 3. **Painel** (mini-loja antiga) — desativado, não usar como referência.
 
 Antes de publicar: `robots.txt`, `sitemap.xml` e as tags `canonical`/`og:url`
-no `index.html` apontam pro domínio oficial atual (GitHub Pages). **Quando
-existir domínio próprio, atualizar os cinco lugares** listados no comentário
-no topo do `<head>` do `index.html`.
+no `index.html` apontam pro domínio oficial (`acaikideliciaperus.com.br`). Se
+a URL oficial mudar de novo, **são oito lugares** — listados no comentário no
+topo do `<head>` do `index.html`.
 
 ## Estrutura
 
