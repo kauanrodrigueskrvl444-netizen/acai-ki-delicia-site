@@ -1,0 +1,25 @@
+{
+  // Configuração do Cloudflare Workers. Sem este arquivo o `npx wrangler deploy`
+  // do build roda, termina verde, e não publica o site — ele não tem como
+  // adivinhar que o conteúdo mora em public/.
+  //
+  // O nome precisa bater com o do Worker criado no painel do Cloudflare.
+  "name": "acai-ki-delicia-site",
+  "compatibility_date": "2026-08-25",
+
+  // Site estático puro: não existe código de Worker, só arquivos. Por isso não
+  // há "main" aqui — o Cloudflare serve o conteúdo de public/ direto do edge,
+  // sem invocar função nenhuma.
+  //
+  // O public/_headers é lido daqui de dentro e é o que aplica os cabeçalhos de
+  // segurança (nosniff, X-Frame-Options, Referrer-Policy e a CSP). O Cloudflare
+  // consome esse arquivo em vez de servi-lo como conteúdo.
+  //
+  // not_found_handling fica no padrão de propósito. "single-page-application"
+  // devolveria o index.html com 200 pra qualquer caminho inexistente, o que
+  // cria soft 404 e faz o Google indexar lixo — o site é uma página só, mas
+  // não é uma SPA com rotas no cliente.
+  "assets": {
+    "directory": "./public"
+  }
+}
