@@ -43,39 +43,60 @@ O único endereço configurável é o do painel, em `public/js/config.js`
 
 ## Como publicar
 
-Três destinos publicados hoje, todos a partir do mesmo `public/`:
+**Cloudflare Workers** serve o site em `https://acaikideliciaperus.com.br`.
+O deploy sai a cada push em `master`: o build roda `npx wrangler deploy`, e o
+`wrangler.jsonc` diz que o conteúdo é a pasta `public/` — sem esse arquivo o
+comando executa, o build fica verde e nada vai ao ar.
 
-1. **Vercel** (canônico) — serve o domínio próprio
-   `https://acaikideliciaperus.com.br`, com deploy automático a cada push em
-   `master`. `vercel.json` força `framework: null` porque o repo tem
-   `server.js` (só pra rodar local) que a Vercel tentaria detectar como
-   servidor Node por engano. O DNS do domínio fica no painel do Registro.br
-   (nameservers `auto.dns.br`), não na Vercel.
-2. **GitHub Pages** (espelho) — branch `gh-pages`, publicada automaticamente
-   a cada push em `master` que muda algo em `public/`
-   (`.github/workflows/deploy-gh-pages.yml`). Era a URL oficial até
-   25/08/2026; hoje continua no ar servindo a mesma página, com `canonical`
-   apontando pro domínio próprio. **Não criar arquivo `CNAME` em `public/`:**
-   isso faria o Pages reivindicar o domínio e brigar com a Vercel pelo mesmo
-   nome. Antes de 01/08/2026 esse passo era manual e ficou esquecido por dias
-   — checar `gh run list` se desconfiar que algo não foi ao ar.
+Não existe código de Worker: os arquivos são servidos direto da borda, e por
+isso requisição de página não conta como invocação no plano gratuito.
 
-   **Este espelho tem data pra sair.** Nele não chegam `X-Content-Type-Options`
-   nem `X-Frame-Options`: o Pages não deixa definir cabeçalho, então lá só vale
-   a política do `<meta>`. Enquanto ele existir, também são duas cópias do CSP
-   pra manter em sincronia. Assim que o domínio próprio estiver indexado e o
-   tráfego tiver migrado — dá pra confirmar na Search Console — apagar o
-   `deploy-gh-pages.yml` e a branch `gh-pages`, e deixar o CSP só no
-   `vercel.json`. Não fazer isso antes: até lá o Pages é a rede de segurança
-   se o DNS do domínio novo falhar.
-3. **Painel** (mini-loja antiga) — desativado, não usar como referência.
+Os cabeçalhos de segurança vêm do `public/_headers`, que o Cloudflare lê de
+dentro da pasta de assets. **Ele é cópia da mesma política que está no
+`vercel.json` e, reduzida, na tag `<meta>` do `index.html`** — as três mudam
+juntas. Quando duas origens mandam CSP, o navegador aplica a interseção, então
+uma esquecida bloqueia calada o que a outra libera.
+
+O DNS do domínio é gerenciado pelo Cloudflare (nameservers `audrey` e
+`augustus.ns.cloudflare.com`), com o registro em si ainda no Registro.br.
+
+### Outros destinos
+
+- **GitHub Pages** — aposentado em 25/08/2026. A branch `gh-pages` não serve
+  mais o site: serve só um redirecionamento pro domínio próprio, pra quem tem
+  o endereço antigo salvo e pro Google transferir o que já indexou. O workflow
+  que republicava foi removido. Não recriar: duas cópias do site publicadas
+  dividem o SEO, e no Pages não chegam `X-Content-Type-Options` nem
+  `X-Frame-Options`, porque ele não permite responder cabeçalho HTTP.
+- **Vercel** — o projeto do site ficou pra trás (o deploy parou de sair em
+  25/08/2026) e deve ser desligado. O `vercel.json` continua no repo por
+  enquanto. O **painel** (`acai-ki-delicia-admin`) segue na Vercel e não tem
+  relação com isso.
+
+O site não depende do painel pra funcionar: catálogo, preço, horário e zonas
+vêm direto do Supabase. O painel só recebe o registro do pedido — se ele cair,
+o checkout volta pro fluxo antigo de WhatsApp e a loja continua vendendo.
 
 Antes de publicar: `robots.txt`, `sitemap.xml` e as tags `canonical`/`og:url`
 no `index.html` apontam pro domínio oficial (`acaikideliciaperus.com.br`). Se
 a URL oficial mudar de novo, **são oito lugares** — listados no comentário no
 topo do `<head>` do `index.html`.
 
-## Migração planejada do site pro Cloudflare
+## Imagens
+
+As fotos de produto ficam no Storage do Supabase, enviadas pelo painel no
+tamanho que saiu do celular. O `public/js/imagens.js` pede ao Supabase a
+versão redimensionada na própria URL (`/render/image/public/` com `?width=`),
+que também negocia WebP — uma foto de 2,26 MB sai com 23 KB na largura da
+miniatura. Cada lugar pede a largura do seu uso real; as medidas estão em
+`LARGURA`, no topo do arquivo.
+
+As imagens em `public/assets/` são só a reserva mostrada antes do
+`catalog-sync` terminar e pra quem está sem JavaScript. Elas foram
+redimensionadas pelo uso real em 25/08/2026 (18 MB para 1 MB) — ao trocar
+alguma, redimensionar antes de commitar em vez de subir o arquivo do celular.
+
+## Histórico da migração pro Cloudflare
 
 O plano Hobby da Vercel é, pelos termos dela, só pra uso não comercial —
 e um site que fecha pedido é uso comercial. O Cloudflare não tem essa
@@ -98,9 +119,8 @@ Configuração no Cloudflare:
 - Os cabeçalhos de segurança vêm do `public/_headers`, que o Cloudflare lê
   e que o `vercel.json` não substitui
 
-Ordem: só migrar depois do domínio funcionando na Vercel e do checkout
-testado com um pedido real. Migrar antes disso deixa duas mudanças em voo
-ao mesmo tempo e ninguém sabe qual quebrou, se quebrar.
+Concluída em 25/08/2026, com um pedido de verdade fechado pelo endereço novo
+antes de o DNS ser apontado.
 
 ## Estrutura
 
