@@ -46,7 +46,16 @@
     if (!img) return;
 
     const local = img.getAttribute('src');
-    if (!local || img.src === imageUrl) return;
+    if (!local) return;
+
+    // A miniatura do cardápio é desenhada a 56x56 e a foto do card ocupa a
+    // largura do cartão. Pedir a largura certa pra cada uma é o que evita
+    // baixar 2 MB pra pintar 56 pixels.
+    const largura = img.classList.contains('menu-item-thumb')
+      ? window.__IMG__.LARGURA.miniatura
+      : window.__IMG__.LARGURA.cartao;
+    const remota = window.__IMG__.url(imageUrl, largura);
+    if (img.src === remota) return;
 
     // Se a foto do painel não carregar (URL quebrada, storage fora do ar),
     // volta pra imagem local em vez de deixar o card no placeholder. O
@@ -68,7 +77,7 @@
       { once: true },
     );
 
-    img.src = imageUrl;
+    img.src = remota;
   }
 
   function syncCard(el, product) {
@@ -116,7 +125,7 @@
     if (product.image_url) {
       const img = document.createElement('img');
       img.className = 'product-card-image';
-      img.src = product.image_url;
+      window.__IMG__.definir(img, product.image_url, window.__IMG__.LARGURA.cartao);
       img.alt = product.name;
       img.loading = 'lazy';
       img.setAttribute('data-image-fallback', '');
@@ -178,7 +187,7 @@
     if (product.image_url) {
       const img = document.createElement('img');
       img.className = 'menu-item-thumb';
-      img.src = product.image_url;
+      window.__IMG__.definir(img, product.image_url, window.__IMG__.LARGURA.miniatura);
       img.alt = product.name;
       img.loading = 'lazy';
       img.setAttribute('data-image-fallback', '');
