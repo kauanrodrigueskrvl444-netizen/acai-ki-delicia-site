@@ -75,7 +75,7 @@
     } else if (launch.image_url) {
       const img = document.createElement('img');
       img.className = 'launch-media';
-      img.src = launch.image_url;
+      window.__IMG__.definir(img, launch.image_url, window.__IMG__.LARGURA.cartao);
       img.alt = launch.title;
       media.appendChild(img);
     } else {

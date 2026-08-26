@@ -662,7 +662,11 @@ function openProductModal(container) {
   if (productModalQtyValue) productModalQtyValue.textContent = String(modalQty);
 
   if (imgSrc && productModalImage) {
-    productModalImage.src = imgSrc;
+    // O imgSrc vem do elemento clicado, que pode ser a miniatura de 160px do
+    // cardápio. O modal tem 200px de altura e mostraria isso esticado, então
+    // pede a versão maior da MESMA foto — o utilitário reconhece uma URL que
+    // ele próprio gerou e só troca a largura.
+    productModalImage.src = window.__IMG__.url(imgSrc, window.__IMG__.LARGURA.modal);
     productModalImage.alt = name;
     productModalMedia?.classList.remove('is-hidden');
   } else {

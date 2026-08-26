@@ -38,8 +38,10 @@
   }
 
   function updateLogo(url) {
-    document.getElementById('navLogo')?.setAttribute('src', url);
-    document.getElementById('footerLogo')?.setAttribute('src', url);
+    // A logo é desenhada a 44x44 nos dois lugares.
+    const reduzida = window.__IMG__.url(url, window.__IMG__.LARGURA.logo);
+    document.getElementById('navLogo')?.setAttribute('src', reduzida);
+    document.getElementById('footerLogo')?.setAttribute('src', reduzida);
   }
 
   // Nome da loja (Configurações no painel) reflete nos lugares que dependem
