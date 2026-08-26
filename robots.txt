@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://acaikideliciaperus.com.br/sitemap.xml
