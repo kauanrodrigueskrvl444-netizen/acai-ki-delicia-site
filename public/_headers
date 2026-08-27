@@ -13,3 +13,31 @@
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: no-referrer
   Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://lungknnnbddzgjvemdlp.supabase.co; media-src 'self' https://lungknnnbddzgjvemdlp.supabase.co; connect-src 'self' https://lungknnnbddzgjvemdlp.supabase.co https://acai-ki-delicia-admin.vercel.app; frame-ancestors 'self'
+
+# Cache dos arquivos estáticos.
+#
+# Padrão do Cloudflare Workers para assets é "public, max-age=0,
+# must-revalidate": todo arquivo do site vai ao servidor a cada visita, mesmo
+# sem ter mudado. Volta 304 (barato), mas são ~10 idas e voltas antes de a
+# página desenhar — em rede móvel isso é a maior parte da espera.
+#
+# CSS e JS levam ?v= no index.html, então a URL muda sozinha quando o conteúdo
+# muda: dá pra guardar por um ano. ATENÇÃO: com immutable o navegador não
+# revalida NUNCA dentro do ano. Se o ?v= não for bumpado numa alteração, quem
+# já visitou continua com a versão velha. Bumpar o ?v= deixou de ser boa
+# prática e passou a ser obrigatório.
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Fotos e vídeos do repositório NÃO levam versão no nome (logo.png, Marmita1L.jpg)
+# e são trocados no lugar — em 26/08/2026 quase todos foram substituídos. Por
+# isso um dia, e não um ano: troca de foto aparece pro cliente em até 24h sem
+# precisar renomear arquivo.
+/assets/*
+  Cache-Control: public, max-age=86400
+
+# O HTML fica fora de propósito: é ele que aponta pros ?v= novos. Cacheado,
+# prenderia o cliente na combinação antiga inteira.

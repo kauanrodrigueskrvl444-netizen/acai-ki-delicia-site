@@ -39,9 +39,13 @@
 
   function updateLogo(url) {
     // A logo é desenhada a 44x44 nos dois lugares.
-    const reduzida = window.__IMG__.url(url, window.__IMG__.LARGURA.logo);
-    document.getElementById('navLogo')?.setAttribute('src', reduzida);
-    document.getElementById('footerLogo')?.setAttribute('src', reduzida);
+    //
+    // Via __IMG__.definir e não setAttribute direto: `definir` instala a queda
+    // pro arquivo original. Sem isso, se o serviço de redimensionamento da
+    // Supabase for cortado (ver imagens.js), a marca da loja aparece como
+    // imagem quebrada no topo E no rodapé — o pior lugar possível pra falhar.
+    window.__IMG__.definir(document.getElementById('navLogo'), url, window.__IMG__.LARGURA.logo);
+    window.__IMG__.definir(document.getElementById('footerLogo'), url, window.__IMG__.LARGURA.logo);
   }
 
   // Nome da loja (Configurações no painel) reflete nos lugares que dependem
@@ -89,6 +93,10 @@
     if (video) {
       video.pause();
       video.removeAttribute('src');
+      // O poster sai junto. Sem isto, limpar o vídeo no painel deixava a
+      // imagem do primeiro quadro na tela pra sempre — o cliente teria
+      // removido o vídeo e continuaria vendo um frame dele.
+      video.removeAttribute('poster');
       video.load();
     }
     document.querySelector('.hero-grid')?.classList.add('hero-sem-midia');

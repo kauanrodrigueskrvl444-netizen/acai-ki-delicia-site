@@ -258,6 +258,33 @@ function renderCart() {
     cartItemsEl.appendChild(row);
   });
 
+  // Brindes. Desenhados a partir do carrinho, nunca guardados nele: o array
+  // `cart` vai pro localStorage e vira o payload do checkout, e brinde no
+  // payload chegaria COBRADO (o servidor recalcula todo preço pelo cadastro).
+  // Ver js/brindes.js. Linha sem botão de quantidade de propósito — não é
+  // item que o cliente escolheu, é consequência do que ele já escolheu.
+  (window.__BRINDES__?.doCarrinho(cart) || []).forEach((nomeDoBrinde) => {
+    const row = document.createElement('div');
+    row.className = 'cart-item cart-item-gift';
+
+    const info = document.createElement('div');
+    info.className = 'cart-item-info';
+    const nameEl = document.createElement('span');
+    nameEl.className = 'cart-item-name';
+    nameEl.textContent = nomeDoBrinde;
+    const priceEl = document.createElement('span');
+    priceEl.className = 'cart-item-price';
+    priceEl.textContent = 'Brinde';
+    info.append(nameEl, priceEl);
+
+    const qty = document.createElement('span');
+    qty.className = 'cart-item-gift-tag';
+    qty.textContent = 'Grátis';
+
+    row.append(info, qty);
+    cartItemsEl.appendChild(row);
+  });
+
   renderCartTotals();
 }
 
@@ -385,7 +412,14 @@ function whatsappFallback() {
   const lines = cart.map(
     (item) => `- ${item.quantity}x ${item.name}: ${formatPrice(item.price * item.quantity)}`
   );
-  const message = `Olá! Gostaria de fazer o seguinte pedido:\n\n${lines.join('\n')}\n\nTotal: ${formatPrice(cartTotal())}`;
+  // Brinde entra na mensagem porque este caminho é justamente aquele em que o
+  // pedido NÃO passa pelo painel (sem endereço do painel, ou item fora do
+  // cadastro). Sem essa linha, o balcão não teria como saber que o pedido dá
+  // brinde — o servidor, que normalmente resolve isso, nem foi chamado.
+  const brindes = (window.__BRINDES__?.doCarrinho(cart) || []).map(
+    (nome) => `- 1x ${nome}: brinde`
+  );
+  const message = `Olá! Gostaria de fazer o seguinte pedido:\n\n${[...lines, ...brindes].join('\n')}\n\nTotal: ${formatPrice(cartTotal())}`;
   return `https://wa.me/${window.__STORE_WHATSAPP__ || WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
@@ -490,6 +524,12 @@ cartCheckoutBtn?.addEventListener('click', async () => {
 });
 
 renderCart();
+
+// Regras de brinde. Desenha o carrinho primeiro (ele vem do localStorage e
+// aparece na hora) e redesenha quando as regras chegarem — sem isso, quem
+// abrisse o site com item já no carrinho só veria o brinde depois de mexer
+// em alguma coisa.
+window.__BRINDES__?.carregar(renderCart);
 
 // ---- Modal do produto ----
 const COMPLEMENTS = [
@@ -666,7 +706,11 @@ function openProductModal(container) {
     // cardápio. O modal tem 200px de altura e mostraria isso esticado, então
     // pede a versão maior da MESMA foto — o utilitário reconhece uma URL que
     // ele próprio gerou e só troca a largura.
-    productModalImage.src = window.__IMG__.url(imgSrc, window.__IMG__.LARGURA.modal);
+    //
+    // Via `definir`, que cai pro arquivo original se o redimensionamento
+    // falhar. Cair pro imgSrc recebido não serviria: ele já é uma URL
+    // redimensionada, ou seja o mesmo serviço que acabou de falhar.
+    window.__IMG__.definir(productModalImage, imgSrc, window.__IMG__.LARGURA.modal);
     productModalImage.alt = name;
     productModalMedia?.classList.remove('is-hidden');
   } else {

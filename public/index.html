@@ -62,9 +62,18 @@
   <meta name="twitter:description" content="Açaí cremoso montado na hora em Perus, São Paulo/SP. Peça direto pelo WhatsApp, sem pagar comissão de app.">
   <meta name="twitter:image" content="https://acaikideliciaperus.com.br/assets/logo.png">
 
+  <!-- Conexões abertas antes de o navegador precisar delas.
+       fonts.gstatic.com (crossorigin, que é como fonte é buscada) faltava: a
+       fonte só era descoberta ao ler o CSS do Google, e aí ainda faltava
+       DNS + TLS pra ela — handshake inteiro no caminho crítico do texto.
+       O Supabase é pior: só aparece quando js/store-config.js roda, e é ele
+       que devolve o endereço do vídeo do topo e o cardápio. Abrir a conexão
+       aqui tira o handshake de dentro dessa espera. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://lungknnnbddzgjvemdlp.supabase.co">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260813b">
+  <link rel="stylesheet" href="css/style.css?v=20260827">
 
   <!-- Dados estruturados do negócio. Não voltar a incluir "aggregateRating"
        aqui: marcar a própria nota no próprio site, quando as avaliações são
@@ -183,9 +192,19 @@
                vídeo cadastrado no painel (2,6 MB) — dois vídeos por visita pra
                exibir um. O arquivo local vira fallback e só carrega se as
                configurações não chegarem. -->
+          <!-- poster: primeiro quadro do vídeo, 38 KB contra os ~920 KB do
+               vídeo. Sem ele este espaço fica VAZIO até o vídeo baixar, que
+               era a demora que o dono via no notebook. Com ele a imagem
+               aparece de cara e o vídeo entra por cima quando estiver pronto.
+
+               ATENÇÃO: é um retrato do vídeo cadastrado HOJE no painel. Se o
+               vídeo do topo for trocado lá, este arquivo precisa ser gerado
+               de novo (ver README) — senão aparece por um instante o quadro
+               do vídeo antigo antes de o novo começar. -->
           <video
             id="heroVideo"
             data-lazy-src="assets/acai-hero.mp4"
+            poster="assets/hero-poster.jpg"
             class="hero-image"
             data-video-fallback
             preload="none"
@@ -1133,10 +1152,11 @@
   <script src="js/config.js?v=20260825"></script>
   <!-- imagens.js antes dos demais: store-config, catalog-sync e launches
        chamam window.__IMG__ assim que rodam. -->
-  <script src="js/imagens.js?v=20260825"></script>
-  <script src="js/store-config.js?v=20260825"></script>
+  <script src="js/imagens.js?v=20260827"></script>
+  <script src="js/store-config.js?v=20260827"></script>
   <script src="js/catalog-sync.js?v=20260825"></script>
   <script src="js/launches.js?v=20260825"></script>
-  <script src="js/script.js?v=20260825"></script>
+  <script src="js/brindes.js?v=20260827"></script>
+  <script src="js/script.js?v=20260827"></script>
 </body>
 </html>

@@ -1692,6 +1692,29 @@ img {
   color: rgba(58, 13, 63, 0.55);
 }
 
+/* Linha de brinde no carrinho.
+   Dourado da marca porque é a única linha do carrinho que é boa notícia — e
+   sem ele, "Brinde / Grátis" em cinza passa por item de R$ 0,00 cadastrado
+   errado. Não tem botão de quantidade de propósito: o cliente não escolheu
+   esse item nem controla quantos ganha (ver js/brindes.js). */
+.cart-item-gift .cart-item-name,
+.cart-item-gift .cart-item-price {
+  color: #8a6a00;
+}
+
+.cart-item-gift-tag {
+  flex-shrink: 0;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.18);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: #8a6a00;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
 .cart-item-qty {
   display: flex;
   align-items: center;

@@ -91,10 +91,101 @@ que também negocia WebP — uma foto de 2,26 MB sai com 23 KB na largura da
 miniatura. Cada lugar pede a largura do seu uso real; as medidas estão em
 `LARGURA`, no topo do arquivo.
 
+> ⚠️ **`resize=contain` na URL não é opcional.** Passando só `?width=`, o
+> Supabase aplica a largura e **mantém a altura original**: uma foto de
+> 1080x1068 voltava 160x1068 e uma de 1024x1536 voltava 160x1536. A foto
+> chegava esmagada na horizontal (até 6,7x), e o `object-fit: cover` do CSS
+> recortava essa tira pra preencher o quadro — na tela, toda foto de produto
+> aparecia com zoom e deformada. Bug ativo de 26/08 a 27/08/2026. Com
+> `contain` a proporção volta (160x158, 160x240) e o arquivo ainda fica menor
+> (6,7 KB contra 16,8 KB).
+
 As imagens em `public/assets/` são só a reserva mostrada antes do
 `catalog-sync` terminar e pra quem está sem JavaScript. Elas foram
 redimensionadas pelo uso real em 25/08/2026 (18 MB para 1 MB) — ao trocar
 alguma, redimensionar antes de commitar em vez de subir o arquivo do celular.
+
+## Vídeos e cache
+
+Os vídeos (topo e lançamentos) vêm do Storage do Supabase e **não passam pelo
+redimensionamento do `imagens.js`** — aquilo é serviço de imagem, não serve
+vídeo. Eles chegam do jeito que foram enviados pelo painel.
+
+Medido em 27/08/2026: o vídeo do topo tinha 2,7 MB e os três de lançamento
+8,5 MB somados, todos servidos com `Cache-Control: no-cache`. Isso significa
+rebaixar tudo em **toda visita, inclusive num F5** — e o vídeo do topo, que
+começa a baixar assim que as configurações chegam, disputa banda com fonte,
+CSS e foto, o que fazia a página inteira parecer lenta e não só o vídeo.
+
+A causa era o `upload()` do painel (`src/lib/upload-browser.ts`) não passar
+`cacheControl`. Corrigido lá, com um ano — o nome do arquivo já leva timestamp,
+então trocar a mídia gera caminho novo e aparece na hora.
+
+**A correção só vale pra upload novo.** Mídia que já estava no bucket continua
+em `no-cache` até ser **reenviada pelo painel**.
+
+Continua pendente: comprimir os vídeos (2,7 MB é muito pra um loop mudo; com
+H.264 720p sem áudio dá pra ficar abaixo de 500 KB) e dar um `poster` ao vídeo
+do topo — sem ele o espaço fica **vazio** enquanto baixa, que é a demora que o
+cliente enxerga.
+
+### Como comprimir vídeo e gerar o poster
+
+Preset usado em 27/08/2026 (540px de largura, 24fps, sem áudio, `faststart`
+pra o vídeo começar antes de terminar de baixar). Reduziu os quatro vídeos do
+Supabase de 11,2 MB para 3,3 MB, sem diferença visível no tamanho de
+exibição:
+
+```
+ffmpeg -i entrada.mp4 -an -r 24 -vf "scale=540:-2" \
+  -c:v libx264 -profile:v high -preset slow -crf 32 \
+  -pix_fmt yuv420p -movflags +faststart saida.mp4
+```
+
+O `poster` do vídeo do topo (`public/assets/hero-poster.jpg`, 38 KB) é o
+quadro de 1 segundo do vídeo cadastrado no painel:
+
+```
+ffmpeg -ss 1 -i hero.mp4 -frames:v 1 -vf "scale=540:-2" -q:v 5 \
+  public/assets/hero-poster.jpg
+```
+
+**Trocou o vídeo do topo no painel? Gere o poster de novo.** Ele é um retrato
+do vídeo de hoje; desatualizado, mostra por um instante o quadro do vídeo
+antigo antes de o novo começar. O `store-config.js` remove o poster sozinho
+quando o vídeo é apagado no painel — o caso a cuidar é a troca, não a
+remoção.
+
+### Cache dos arquivos do próprio site
+
+O padrão do Cloudflare Workers pra assets é `public, max-age=0,
+must-revalidate`: todo arquivo vai ao servidor a cada visita. As regras estão
+no `public/_headers` — um ano pra `/css/*` e `/js/*`, um dia pra `/assets/*`.
+
+⚠️ `/css/*` e `/js/*` vão com `immutable`, ou seja o navegador **não revalida
+dentro do ano**. Quem já visitou fica preso na versão velha se o `?v=` do
+`index.html` não for bumpado. **Bumpar o `?v=` ao alterar CSS ou JS deixou de
+ser boa prática e passou a ser obrigatório.** O HTML fica fora do cache de
+propósito: é ele que aponta pros `?v=` novos.
+
+## Brindes
+
+"Compre o produto A, ganhe o produto B", cadastrado em **Brindes** no painel
+(tabela `gift_rules`).
+
+Quem decide o brinde é o **servidor**, no `createPublicOrder` do painel. O
+`public/js/brindes.js` é só vitrine: desenha a linha no carrinho a partir das
+regras, e o brinde **nunca entra no array `cart`**. O motivo é que o checkout
+descarta todo preço que o navegador manda e recalcula item por item a partir de
+`products.base_price` — brinde enviado como item comum não chegaria de graça,
+chegaria cobrado pelo preço cheio.
+
+Vale um brinde por regra por pedido, não por unidade: três marmitas dão uma
+Coca, não três. A regra é a mesma nos dois lados — se virar proporcional, muda
+nos dois.
+
+Se a leitura falhar (sem rede, tabela ainda não migrada), o carrinho fica sem o
+aviso e o pedido segue normal — o servidor dá o brinde do mesmo jeito.
 
 ## Histórico da migração pro Cloudflare
 
@@ -132,6 +223,7 @@ public/
     config.js          # endereço do painel (ADMIN_API)
     store-config.js     # lê configurações da loja (horário, taxa, status aberto/fechado)
     catalog-sync.js      # sincroniza preço/disponibilidade/adicionais com o Supabase do painel
+    brindes.js           # regras de brinde (vitrine; quem decide é o servidor)
     script.js            # carrinho, modal de produto, monte-seu-açaí, checkout
   assets/               # imagens e vídeos de produto
   robots.txt, sitemap.xml
