@@ -150,7 +150,10 @@ ffmpeg -ss 1 -i hero.mp4 -frames:v 1 -vf "scale=540:-2" -q:v 5 \
   public/assets/hero-poster.jpg
 ```
 
-**Trocou o vídeo do topo no painel? Gere o poster de novo.** Ele é um retrato
+**Trocou o vídeo do topo no painel? Gere o poster de novo E bumpe o `?v=`
+do `poster=` no `index.html`.** O nome do arquivo é fixo e `/assets/*` tem cache
+de um dia: sem o bump o cliente segue vendo o quadro do vídeo antigo por até 24h,
+como aconteceu em 28/08/2026. Ele é um retrato
 do vídeo de hoje; desatualizado, mostra por um instante o quadro do vídeo
 antigo antes de o novo começar. O `store-config.js` remove o poster sozinho
 quando o vídeo é apagado no painel — o caso a cuidar é a troca, não a

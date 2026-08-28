@@ -192,19 +192,23 @@
                vídeo cadastrado no painel (2,6 MB) — dois vídeos por visita pra
                exibir um. O arquivo local vira fallback e só carrega se as
                configurações não chegarem. -->
-          <!-- poster: primeiro quadro do vídeo, 38 KB contra os ~920 KB do
+          <!-- poster: primeiro quadro do vídeo, ~56 KB contra os ~815 KB do
                vídeo. Sem ele este espaço fica VAZIO até o vídeo baixar, que
-               era a demora que o dono via no notebook. Com ele a imagem
-               aparece de cara e o vídeo entra por cima quando estiver pronto.
+               era a demora que o dono via no notebook.
 
-               ATENÇÃO: é um retrato do vídeo cadastrado HOJE no painel. Se o
-               vídeo do topo for trocado lá, este arquivo precisa ser gerado
-               de novo (ver README) — senão aparece por um instante o quadro
-               do vídeo antigo antes de o novo começar. -->
+               O ?v= NÃO é enfeite. O nome do arquivo é fixo e /assets/* é
+               servido com cache de um dia (public/_headers), então sem trocar
+               a URL o navegador continua mostrando o poster ANTIGO por até
+               24h — foi o que aconteceu em 28/08/2026: o vídeo do topo mudou,
+               o poster novo subiu, e o quadro do vídeo velho continuou
+               piscando antes do novo começar.
+
+               REGRA: trocou o vídeo do topo no painel? Gere o poster de novo
+               (comando no README) E bumpe este ?v=. As duas coisas, sempre. -->
           <video
             id="heroVideo"
             data-lazy-src="assets/acai-hero.mp4"
-            poster="assets/hero-poster.jpg"
+            poster="assets/hero-poster.jpg?v=20260828"
             class="hero-image"
             data-video-fallback
             preload="none"
