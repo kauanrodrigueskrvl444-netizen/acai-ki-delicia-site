@@ -4,13 +4,6 @@
 // Se a busca falhar, o site continua funcionando com os valores fixos
 // já escritos no HTML: isso aqui só sobrescreve quando dá certo.
 (function () {
-  const ICON = {
-    clock: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 1.9"/></svg>',
-    scooter: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6" cy="17.5" r="2.8"/><circle cx="18.5" cy="17.5" r="2.8"/><path d="M8.8 17.5h6.9M15.7 17.5 13 6.5h-2.6M13.6 9.5h4l2.2 5.4"/></svg>',
-    truck: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6.5h10.5v10H3zM13.5 10h3.8l2.7 3.1v3.4h-6.5z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>',
-    cart: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h2.2l2.3 12.1a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.55L21 8H5.4"/></svg>',
-  };
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const SUPABASE_URL = 'https://lungknnnbddzgjvemdlp.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_2sr3hUBpek8LqSOBOwLMkA_TsIheip3';
   const SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
@@ -37,7 +30,16 @@
     });
   }
 
+  // Arquivo do logo cadastrado no painel que é IGUAL ao assets/logo-128.jpg
+  // do repositório (conferido em 01/10/2026, mesma arte em 512x512). Enquanto
+  // o painel apontar pra ele, o HTML já mostra o logo certo e trocar o src só
+  // faria o navegador baixar a mesma imagem uma segunda vez. Se o dono subir
+  // um logo novo, o nome muda e a troca volta a acontecer sozinha.
+  const LOGO_DO_REPOSITORIO = 'logo-1785360506000.png';
+
   function updateLogo(url) {
+    if (url.split('?')[0].endsWith('/' + LOGO_DO_REPOSITORIO)) return;
+
     // A logo é desenhada a 44x44 nos dois lugares.
     //
     // Via __IMG__.definir e não setAttribute direto: `definir` instala a queda
@@ -128,61 +130,6 @@
     banner.hidden = false;
   }
 
-  function updateInfoStrip(settings, zones) {
-    const strip = document.getElementById('storeInfoStrip');
-    if (!strip) return;
-
-    const parts = [];
-    if (settings.hours) parts.push(`${ICON.clock} ${esc(settings.hours)}`);
-    if (settings.avg_time) parts.push(`${ICON.scooter} Entrega em ${esc(settings.avg_time)}`);
-
-    // Com zonas cadastradas não existe "a" taxa — anunciar uma só seria
-    // prometer errado pra metade dos bairros. Mostra a faixa; o valor exato
-    // aparece no carrinho quando o cliente escolhe o bairro.
-    if (zones.length > 0) {
-      const fees = zones.map((zone) => Number(zone.fee));
-      const min = Math.min(...fees);
-      const max = Math.max(...fees);
-      parts.push(
-        min === max
-          ? `${ICON.truck} Taxa de entrega: ${formatPrice(min)}`
-          : `${ICON.truck} Taxa de entrega: ${formatPrice(min)} a ${formatPrice(max)}`,
-      );
-    } else if (settings.delivery_fee !== null && settings.delivery_fee !== undefined) {
-      parts.push(`${ICON.truck} Taxa de entrega: ${formatPrice(settings.delivery_fee)}`);
-    }
-
-    if (settings.min_order !== null && settings.min_order !== undefined) {
-      parts.push(`${ICON.cart} Pedido mínimo: ${formatPrice(settings.min_order)}`);
-    }
-
-    if (parts.length === 0) {
-      strip.hidden = true;
-      return;
-    }
-    // Esteira em vez de linha estática. No celular os quatro itens quebravam em
-    // duas ou três linhas e empurravam o hero pra baixo; passando numa linha só,
-    // a faixa ocupa altura fixa e ainda chama atenção pro valor da taxa.
-    //
-    // A animação desloca exatamente a largura de UMA cópia e reinicia, então as
-    // cópias precisam ser idênticas pra emenda não aparecer. São três (e não
-    // duas) porque em tela larga duas cópias não cobrem a janela inteira e
-    // surgiria um vazio no meio do ciclo.
-    const sep = '<span class="info-strip-sep" aria-hidden="true">·</span>';
-    // O separador vai também no fim: é ele que separa o último item de uma cópia
-    // do primeiro item da cópia seguinte.
-    const seq = parts.join(sep) + sep;
-    strip.innerHTML =
-      '<div class="info-strip-track">' +
-      `<div class="info-strip-seq">${seq}</div>` +
-      // Cópias só visuais — sem aria-hidden o leitor de tela repetiria a taxa
-      // de entrega três vezes.
-      `<div class="info-strip-seq" aria-hidden="true">${seq}</div>` +
-      `<div class="info-strip-seq" aria-hidden="true">${seq}</div>` +
-      '</div>';
-    strip.hidden = false;
-  }
-
   /* Bairro deixa de ser texto livre e passa a ser escolha na lista de zonas.
      Isso é o que torna a taxa determinística: o valor vem do id escolhido, não
      de comparar a grafia que o cliente digitou.
@@ -269,7 +216,6 @@
       updateFooterText('footerAddress', settings.address);
       updateFooterText('footerHours', settings.hours);
       updateClosedBanner(settings.is_open, settings.closed_message);
-      updateInfoStrip(settings, zones);
       await setupAgendamento(settings.scheduling_enabled);
     } catch {
       // Sem conexão ou config indisponível: mantém os valores fixos do HTML.

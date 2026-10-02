@@ -48,7 +48,10 @@
        JSON-LD (url / image). -->
   <link rel="canonical" href="https://acaikideliciaperus.com.br/">
 
-  <link rel="icon" type="image/png" href="assets/logo.png">
+  <!-- Ícone da aba na versão de 128px (25 KB). O logo.png de 512px (83 KB)
+       fica só pro apple-touch-icon e pros cartões de compartilhamento, que
+       precisam da imagem grande e não entram no carregamento da página. -->
+  <link rel="icon" type="image/png" href="assets/logo-128.png">
   <link rel="apple-touch-icon" href="assets/logo.png">
 
   <meta property="og:type" content="website">
@@ -72,8 +75,29 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://lungknnnbddzgjvemdlp.supabase.co">
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260827">
+  <!-- Só Poppins, e só os quatro pesos que o style.css usa (400, 600, 700,
+       800). A Dancing Script saiu em 01/10/2026: era pedida aqui e nunca
+       usada em nenhum seletor. -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=20261001">
+
+  <!-- Scripts no <head> com defer (01/10/2026). Antes ficavam no fim do
+       <body> sem defer: o navegador só os descobria depois de ler a página
+       inteira e cada um travava a montagem enquanto rodava. Medido em 4G
+       lento, eles baixavam de 4,6 s a 7,2 s, e o cardápio só pedia os dados
+       à Supabase em 8,3 s. Com defer eles baixam em paralelo com o CSS e
+       rodam na ORDEM escrita aqui, depois de o HTML estar todo montado.
+
+       A ordem importa: config.js primeiro, imagens.js antes dos demais
+       (store-config, catalog-sync e launches chamam window.__IMG__ assim que
+       rodam) e script.js por último. -->
+  <script src="js/config.js?v=20260825" defer></script>
+  <script src="js/imagens.js?v=20260827" defer></script>
+  <script src="js/store-config.js?v=20261001" defer></script>
+  <script src="js/catalog-sync.js?v=20260825" defer></script>
+  <script src="js/launches.js?v=20260825" defer></script>
+  <script src="js/brindes.js?v=20260827" defer></script>
+  <script src="js/script.js?v=20260827" defer></script>
 
   <!-- Dados estruturados do negócio. Não voltar a incluir "aggregateRating"
        aqui: marcar a própria nota no próprio site, quando as avaliações são
@@ -121,7 +145,7 @@
   <header class="site-header">
     <nav class="navbar">
       <a href="#hero" class="logo">
-        <img src="assets/logo.png" alt="Açaí Kidelicia" class="logo-img" id="navLogo">
+        <img src="assets/logo-128.jpg" alt="Açaí Kidelicia" class="logo-img" id="navLogo" width="44" height="44">
       </a>
 
       <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
@@ -150,7 +174,6 @@
   </header>
 
   <div class="store-closed-banner" id="storeClosedBanner" role="status" hidden></div>
-  <div class="store-info-strip" id="storeInfoStrip" hidden></div>
 
   <section class="hero" id="hero">
     <div class="hero-decor" aria-hidden="true">
@@ -173,14 +196,6 @@
             Quero o Meu Agora
           </a>
           <a href="#cardapio" class="btn-ghost">Ver Cardápio</a>
-        </div>
-
-        <div class="hero-stats">
-          <a href="https://share.google/HC0OF8GgoI82PgGcq" target="_blank" rel="noopener" class="hero-stat hero-stat-link">
-            <span class="hero-stat-stars" aria-hidden="true">★★★★★</span>
-            <span class="hero-stat-value">4,8</span>
-            <span class="hero-stat-label">mais de 30 avaliações verificadas no Google</span>
-          </a>
         </div>
       </div>
 
@@ -956,20 +971,9 @@
   <section class="social-proof" id="avaliacoes" data-reveal>
     <div class="launches-header">
       <span class="launches-eyebrow">Quem já pediu, aprova</span>
-      <h2 class="launches-title">Confira antes de pedir</h2>
-      <p class="launches-subtitle">Nota real no Google e bastidores do dia a dia no Instagram.</p>
     </div>
 
     <div class="social-proof-inner">
-      <div class="social-proof-item">
-        <span class="social-proof-stars" aria-hidden="true">★★★★★</span>
-        <span class="social-proof-value">4,8</span>
-        <span class="social-proof-label">mais de 30 avaliações verificadas no Google</span>
-        <a href="https://share.google/HC0OF8GgoI82PgGcq" target="_blank" rel="noopener" class="btn-ghost social-proof-btn">Ver avaliações</a>
-      </div>
-
-      <div class="social-proof-divider" aria-hidden="true"></div>
-
       <div class="social-proof-item">
         <span class="social-proof-value"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg> Instagram</span>
         <span class="social-proof-label">@acaikidelicia.sabor</span>
@@ -981,7 +985,7 @@
   <footer class="site-footer" id="contato">
     <div class="footer-inner">
       <div class="footer-brand">
-        <img src="assets/logo.png" alt="Açaí Kidelicia" class="footer-logo" loading="lazy" id="footerLogo">
+        <img src="assets/logo-128.jpg" alt="Açaí Kidelicia" class="footer-logo" loading="lazy" id="footerLogo">
         <p class="footer-tagline">Açaí premium em Perus, direto pra sua casa.</p>
       </div>
 
@@ -1153,14 +1157,5 @@
     </div>
   </aside>
 
-  <script src="js/config.js?v=20260825"></script>
-  <!-- imagens.js antes dos demais: store-config, catalog-sync e launches
-       chamam window.__IMG__ assim que rodam. -->
-  <script src="js/imagens.js?v=20260827"></script>
-  <script src="js/store-config.js?v=20260827"></script>
-  <script src="js/catalog-sync.js?v=20260825"></script>
-  <script src="js/launches.js?v=20260825"></script>
-  <script src="js/brindes.js?v=20260827"></script>
-  <script src="js/script.js?v=20260827"></script>
 </body>
 </html>

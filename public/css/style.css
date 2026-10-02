@@ -17,7 +17,6 @@ html {
   --color-cta-hover: #ffd15c;
   --color-text-light: #fdf6f0;
   --font-heading: 'Poppins', sans-serif;
-  --font-logo: 'Dancing Script', cursive;
   --max-width: 1200px;
 }
 
@@ -423,52 +422,6 @@ img {
   gap: 1rem;
 }
 
-.hero-stats {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  padding: 0.6rem 1rem;
-  border-radius: 14px;
-  background: rgba(253, 246, 240, 0.05);
-  border: 1px solid rgba(253, 246, 240, 0.1);
-  box-shadow: 0 10px 24px -14px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px) saturate(140%);
-  -webkit-backdrop-filter: blur(10px) saturate(140%);
-}
-
-.hero-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.hero-stat-stars {
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  color: var(--color-gold);
-}
-
-.hero-stat-value {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--color-gold);
-}
-
-.hero-stat-label {
-  font-size: 0.7rem;
-  color: rgba(253, 246, 240, 0.62);
-  white-space: nowrap;
-}
-
-.hero-stat-link {
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.hero-stat-link:hover {
-  transform: translateY(-2px);
-  opacity: 0.85;
-}
-
 .hero-actions .btn-ghost {
   background: rgba(253, 246, 240, 0.1);
   border-color: rgba(253, 246, 240, 0.3);
@@ -589,15 +542,6 @@ img {
 
   .hero-actions {
     justify-content: center;
-  }
-
-  .hero-stats {
-    justify-content: center;
-    text-align: center;
-  }
-
-  .hero-stat {
-    align-items: center;
   }
 }
 
@@ -2225,12 +2169,6 @@ img {
   text-align: center;
 }
 
-.social-proof-stars {
-  font-size: 0.9rem;
-  letter-spacing: 0.1em;
-  color: var(--color-gold);
-}
-
 .social-proof-value {
   font-size: 1.15rem;
   font-weight: 800;
@@ -2248,21 +2186,10 @@ img {
   font-size: 0.85rem;
 }
 
-.social-proof-divider {
-  width: 60%;
-  height: 1px;
-  background: rgba(253, 246, 240, 0.14);
-}
-
 @media (min-width: 640px) {
   .social-proof-inner {
     flex-direction: row;
     justify-content: center;
-  }
-
-  .social-proof-divider {
-    width: 1px;
-    height: 70px;
   }
 }
 
@@ -2276,79 +2203,6 @@ img {
   font-size: 0.9rem;
   padding: 0.6rem 1rem;
 }
-
-/* Faixa de informação do topo: esteira contínua (ver updateInfoStrip em
-   js/store-config.js, que monta as três cópias). Altura fixa em qualquer tela,
-   porque o conteúdo nunca quebra linha. */
-.store-info-strip {
-  background: var(--color-bg-alt);
-  color: var(--color-text-light);
-  font-size: 0.8rem;
-  padding: 0.5rem 0;
-  overflow: hidden;
-  /* Desbota nas duas pontas pra o texto entrar e sair da faixa em vez de ser
-     cortado no meio de uma palavra. */
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 3rem, #000 calc(100% - 3rem), transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0, #000 3rem, #000 calc(100% - 3rem), transparent 100%);
-}
-
-.info-strip-track {
-  display: flex;
-  width: max-content;
-  animation: info-strip-scroll 32s linear infinite;
-}
-
-/* A taxa de entrega e o pedido mínimo são informação pra ler, não enfeite:
-   parar com o mouse em cima deixa conferir o valor sem correr atrás dele. */
-.store-info-strip:hover .info-strip-track {
-  animation-play-state: paused;
-}
-
-/* nowrap é o que garante a linha única. O conteúdo segue em fluxo inline
-   (não flex) porque os ícones se alinham por vertical-align — ver .icon. */
-.info-strip-seq {
-  white-space: nowrap;
-}
-
-@keyframes info-strip-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(calc(-100% / 3));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .store-info-strip {
-    padding: 0.5rem 1rem;
-    text-align: center;
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
-
-  .info-strip-track {
-    animation: none;
-    width: auto;
-    justify-content: center;
-  }
-
-  /* Parado, cópia idêntica vira repetição visível: sobra uma só, quebrando
-     linha como a faixa fazia antes. */
-  .info-strip-seq[aria-hidden='true'] {
-    display: none;
-  }
-
-  .info-strip-seq {
-    white-space: normal;
-  }
-
-  /* Só existe pra emendar uma cópia na outra; sem esteira, sobraria solto. */
-  .info-strip-seq > .info-strip-sep:last-child {
-    display: none;
-  }
-}
-
 /* ---- Dados do cliente no carrinho (pedido vai direto pro painel) ---- */
 .cart-form {
   display: flex;
@@ -2593,11 +2447,6 @@ img {
 .menu-category-title,
 .about-fact-desc {
   justify-content: flex-start;
-}
-
-.info-strip-sep {
-  margin: 0 0.75rem;
-  opacity: 0.5;
 }
 
 [data-reveal] {
